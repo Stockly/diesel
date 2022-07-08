@@ -108,25 +108,14 @@ where
     Self: Clone,
 {
     type FromClause = Self;
-    // combining two valid selectable expressions for both tables will always yield a
-    // valid selectable expressions for the whole join, so no need to check that here
-    // again. These checked turned out to be quite expensive in terms of compile time
-    // so we use a wrapper type to just skip the check and forward other more relevant
-    // trait implementations to the inner type
-    //
-    // See https://github.com/diesel-rs/diesel/issues/3223 for details
-    type DefaultSelection = self::private::SkipSelectableExpressionBoundCheckWrapper<Left::Output>;
+    type DefaultSelection = crate::query_builder::SelectClauseNotSet;
 
     fn from_clause(&self) -> Self::FromClause {
         self.clone()
     }
 
     fn default_selection(&self) -> Self::DefaultSelection {
-        self::private::SkipSelectableExpressionBoundCheckWrapper(
-            self.left
-                .source
-                .append_selection(self.right.source.default_selection()),
-        )
+        crate::query_builder::SelectClauseNotSet
     }
 }
 
@@ -138,25 +127,14 @@ where
     Self: Clone,
 {
     type FromClause = Self;
-    // combining two valid selectable expressions for both tables will always yield a
-    // valid selectable expressions for the whole join, so no need to check that here
-    // again. These checked turned out to be quite expensive in terms of compile time
-    // so we use a wrapper type to just skip the check and forward other more relevant
-    // trait implementations to the inner type
-    //
-    // See https://github.com/diesel-rs/diesel/issues/3223 for details
-    type DefaultSelection = self::private::SkipSelectableExpressionBoundCheckWrapper<Left::Output>;
+    type DefaultSelection = crate::query_builder::SelectClauseNotSet;
 
     fn from_clause(&self) -> Self::FromClause {
         self.clone()
     }
 
     fn default_selection(&self) -> Self::DefaultSelection {
-        self::private::SkipSelectableExpressionBoundCheckWrapper(
-            self.left
-                .source
-                .append_selection(self.right.source.default_selection().nullable()),
-        )
+        crate::query_builder::SelectClauseNotSet
     }
 }
 
