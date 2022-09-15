@@ -1588,6 +1588,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// #     Ok(())
     /// # }
     /// ```
+    #[deprecated = "Stockly favors using .get_results() instead"]
     fn load<'query, U>(self, conn: &mut Conn) -> QueryResult<Vec<U>>
     where
         Self: LoadQuery<'query, Conn, U>,
@@ -1772,6 +1773,9 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// #     Ok(())
     /// # }
     /// ```
+    #[deprecated = "Use stockly's .get_only_result() if you expect just one line to be returned, \
+            and .first() if you expect several lines to be returned but are only iterested by the \
+            first one"]
     fn get_result<'query, U>(self, conn: &mut Conn) -> QueryResult<U>
     where
         Self: LoadQuery<'query, Conn, U>,
