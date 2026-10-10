@@ -657,7 +657,7 @@ pub struct NotSet;
 /// use diesel::pg::CopyFormat;
 /// # let connection = &mut establish_connection();
 /// let count = diesel::copy_from(users::table)
-///     .from_raw_data(users::table, |copy| {
+///     .from_raw_data((users::id, users::name), |copy| {
 ///         writeln!(copy, "3,Diva Plavalaguna").unwrap();
 ///         writeln!(copy, "4,Father Vito Cornelius").unwrap();
 ///         diesel::QueryResult::Ok(())

@@ -235,6 +235,7 @@ impl<ST, T, GB> ValidGrouping<GB> for SqlLiteral<ST, T> {
 /// use diesel::dsl::sql;
 /// #     let connection = &mut establish_connection();
 /// let user = users
+///     .select((id, name))
 ///     .filter(sql::<Bool>("name = 'Sean'"))
 ///     .first(connection)?;
 /// let expected = (1, String::from("Sean"));

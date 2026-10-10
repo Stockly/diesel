@@ -214,9 +214,8 @@ pub trait QueryDsl: Sized {
     /// For example, `foo.select(bar).select(baz)` will produce the same
     /// query as `foo.select(baz)`.
     ///
-    /// By default, the select clause will be roughly equivalent to `SELECT *`
-    /// (however, Diesel will list all columns to ensure that they are in the
-    /// order we expect).
+    /// There is no default select clause: a query must call `select` before its
+    /// rows can be loaded.
     ///
     /// `select` has slightly stricter bounds on its arguments than other
     /// methods. In particular, when used with a left outer join, `.nullable`
@@ -251,8 +250,8 @@ pub trait QueryDsl: Sized {
     /// # fn run_test() -> QueryResult<()> {
     /// #     use self::users::dsl::*;
     /// #     let connection = &mut establish_connection();
-    /// // By default, all columns will be selected
-    /// let all_users = users.load::<(i32, String)>(connection)?;
+    /// // There is no default selection, so all columns are listed explicitly
+    /// let all_users = users.select((id, name)).load::<(i32, String)>(connection)?;
     /// assert_eq!(
     ///     vec![(1, String::from("Sean")), (2, String::from("Tess"))],
     ///     all_users
@@ -316,10 +315,14 @@ pub trait QueryDsl: Sized {
     /// #         .first::<i32>(connection)?;
     /// let join = users::table.left_join(posts::table);
     ///
-    /// // By default, all columns from both tables are selected.
-    /// // If no explicit select clause is used this means that the result
+    /// // Selecting all columns from both tables means that the result
     /// // type of this query must contain all fields from the original schema in order.
-    /// let all_data = join.load::<(User, Option<Post>)>(connection)?;
+    /// let all_data = join
+    ///     .select((
+    ///         (users::id, users::name),
+    ///         (posts::id, posts::user_id, posts::title).nullable(),
+    ///     ))
+    ///     .load::<(User, Option<Post>)>(connection)?;
     /// let expected_data = vec![
     ///     (
     ///         User::new(1, "Sean"),
@@ -529,12 +532,15 @@ pub trait QueryDsl: Sized {
     ///     .execute(connection)
     ///     .unwrap();
     ///
-    /// // By default, all columns from both tables are selected.
-    /// // If no explicit select clause is used this means that the
+    /// // Selecting all columns from both tables means that the
     /// // result type of this query must contain all fields from the
     /// // original schema in order.
     /// let data = users
     ///     .inner_join(posts.on(title.like(name.concat("%"))))
+    ///     .select((
+    ///         (schema::users::id, name),
+    ///         (schema::posts::id, user_id, title),
+    ///     ))
     ///     .load::<(User, Post)>(connection); // type could be elided
     /// let expected_data = vec![
     ///     (
@@ -757,11 +763,11 @@ pub trait QueryDsl: Sized {
     /// #     let connection = &mut establish_connection();
     /// let sean = (1, "Sean".to_string());
     /// let tess = (2, "Tess".to_string());
-    /// assert_eq!(Ok(sean), users.find(1).first(connection));
-    /// assert_eq!(Ok(tess), users.find(2).first(connection));
+    /// assert_eq!(Ok(sean), users.find(1).select((id, name)).first(connection));
+    /// assert_eq!(Ok(tess), users.find(2).select((id, name)).first(connection));
     /// assert_eq!(
     ///     Err::<(i32, String), _>(NotFound),
-    ///     users.find(3).first(connection)
+    ///     users.find(3).select((id, name)).first(connection)
     /// );
     /// # }
     /// ```
@@ -1131,7 +1137,10 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR UPDATE`
-    /// let users_for_update = users::table.for_update().load(connection)?;
+    /// let users_for_update = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_update()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = users_for_update;
     /// # Ok(())
     /// # }
@@ -1168,7 +1177,10 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR NO KEY UPDATE`
-    /// let users_for_no_key_update = users::table.for_no_key_update().load(connection)?;
+    /// let users_for_no_key_update = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_no_key_update()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = users_for_no_key_update;
     /// # Ok(())
     /// # }
@@ -1204,7 +1216,10 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR SHARE`
-    /// let users_for_share = users::table.for_share().load(connection)?;
+    /// let users_for_share = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_share()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = users_for_share;
     /// # Ok(())
     /// # }
@@ -1241,7 +1256,10 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR KEY SHARE`
-    /// let users_for_key_share = users::table.for_key_share().load(connection)?;
+    /// let users_for_key_share = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_key_share()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = users_for_key_share;
     /// # Ok(())
     /// # }
@@ -1272,7 +1290,11 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR UPDATE SKIP LOCKED`
-    /// let user_skipped_locked = users::table.for_update().skip_locked().load(connection)?;
+    /// let user_skipped_locked = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_update()
+    ///     .skip_locked()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = user_skipped_locked;
     /// # Ok(())
     /// # }
@@ -1303,7 +1325,11 @@ pub trait QueryDsl: Sized {
     /// #     use crate::schema::users;
     /// #     let connection = &mut establish_connection();
     /// // Executes `SELECT * FROM users FOR UPDATE NOWAIT`
-    /// let users_no_wait = users::table.for_update().no_wait().load(connection)?;
+    /// let users_no_wait = users::table
+    ///     .select((users::id, users::name))
+    ///     .for_update()
+    ///     .no_wait()
+    ///     .load(connection)?;
     /// # let u: Vec<(i32, String)> = users_no_wait;
     /// # Ok(())
     /// # }
@@ -1339,7 +1365,7 @@ pub trait QueryDsl: Sized {
     /// #     let connection = &mut establish_connection();
     /// #     let mut params = HashMap::new();
     /// #     params.insert("name", "Sean");
-    /// let mut query = users::table.into_boxed();
+    /// let mut query = users::table.select((users::id, users::name)).into_boxed();
     /// if let Some(name) = params.get("name") {
     ///     query = query.filter(users::name.eq(name));
     /// }
@@ -1409,7 +1435,9 @@ pub trait QueryDsl: Sized {
     /// #     let connection = &mut establish_connection();
     /// #     let mut params = HashMap::new();
     /// #     params.insert("name", "Sean");
-    /// let query = users::table.into_boxed_clone();
+    /// let query = users::table
+    ///     .select((users::id, users::name))
+    ///     .into_boxed_clone();
     /// let mut query = query.clone();
     /// if let Some(name) = params.get("name") {
     ///     query = query.filter(users::name.eq(name));
@@ -1535,7 +1563,7 @@ pub trait QueryDsl: Sized {
     /// allow_tables_to_appear_in_same_query!(users, posts);
     ///
     /// # let _: Vec<(i32, Option<String>)> =
-    /// posts::table.filter(
+    /// posts::table.select((posts::id, posts::by_user)).filter(
     ///    posts::by_user.eq_any(users::table.select(users::name).nullable())
     /// ).load(connection)?;
     /// #     Ok(())
@@ -1658,7 +1686,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// #     use diesel::insert_into;
     /// #     use schema::users::dsl::*;
     /// #     let connection = &mut establish_connection();
-    /// let data = users.load::<(i32, String)>(connection)?;
+    /// let data = users.select((id, name)).load::<(i32, String)>(connection)?;
     /// let expected_data = vec![(1, String::from("Sean")), (2, String::from("Tess"))];
     /// assert_eq!(expected_data, data);
     /// #     Ok(())
@@ -1684,7 +1712,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// #     use diesel::insert_into;
     /// #     use schema::users::dsl::*;
     /// #     let connection = &mut establish_connection();
-    /// let data = users.load::<User>(connection)?;
+    /// let data = users.select((id, name)).load::<User>(connection)?;
     /// let expected_data = vec![
     ///     User {
     ///         id: 1,
@@ -1782,6 +1810,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// use diesel::connection::DefaultLoadingMode;
     ///
     /// let data = users
+    ///     .select((id, name))
     ///     .load_iter::<(i32, String), DefaultLoadingMode>(connection)?
     ///     .collect::<QueryResult<Vec<_>>>()?;
     /// let expected_data = vec![(1, String::from("Sean")), (2, String::from("Tess"))];
@@ -1812,6 +1841,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// use diesel::connection::DefaultLoadingMode;
     ///
     /// let data = users
+    ///     .select((id, name))
     ///     .load_iter::<User, DefaultLoadingMode>(connection)?
     ///     .collect::<QueryResult<Vec<_>>>()?;
     /// let expected_data = vec![
@@ -1846,8 +1876,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// get back a `Result<Option<U>>`
     ///
     /// When this method is called on an insert, update, or delete statement,
-    /// it will implicitly add a `RETURNING *` to the query,
-    /// unless a returning clause was already specified.
+    /// a returning clause must be specified, as tables have no default selection.
     ///
     /// This method only returns the first row that was affected, even if more
     /// rows are affected.
@@ -1868,12 +1897,14 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// #     let connection = &mut establish_connection();
     /// let inserted_row = insert_into(users)
     ///     .values(name.eq("Ruby"))
+    ///     .returning((id, name))
     ///     .get_result(connection)?;
     /// assert_eq!((3, String::from("Ruby")), inserted_row);
     ///
     /// // This will return `NotFound`, as there is no user with ID 4
     /// let update_result = update(users.find(4))
     ///     .set(name.eq("Jim"))
+    ///     .returning((id, name))
     ///     .get_result::<(i32, String)>(connection);
     /// assert_eq!(Err(diesel::NotFound), update_result);
     /// #     Ok(())
@@ -1938,6 +1969,7 @@ pub trait RunQueryDsl<Conn>: Sized {
     ///
     /// let not_found = users
     ///     .filter(name.eq("Foo"))
+    ///     .select((id, name))
     ///     .first::<(i32, String)>(connection);
     /// assert_eq!(Err(diesel::NotFound), not_found);
     /// #     Ok(())

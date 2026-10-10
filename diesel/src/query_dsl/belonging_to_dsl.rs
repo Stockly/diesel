@@ -29,8 +29,14 @@
 /// #     let connection = &mut establish_connection();
 /// #     use self::users::dsl::*;
 /// #     use self::posts::dsl::{posts, title};
-/// let sean = users.filter(name.eq("Sean")).first::<User>(connection)?;
-/// let tess = users.filter(name.eq("Tess")).first::<User>(connection)?;
+/// let sean = users
+///     .filter(name.eq("Sean"))
+///     .select((id, name))
+///     .first::<User>(connection)?;
+/// let tess = users
+///     .filter(name.eq("Tess"))
+///     .select((id, name))
+///     .first::<User>(connection)?;
 ///
 /// let seans_posts = Post::belonging_to(&sean)
 ///     .select(title)

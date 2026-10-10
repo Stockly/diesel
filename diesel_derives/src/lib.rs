@@ -597,7 +597,7 @@ fn derive_query_id_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenS
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.first(connection)?;
+/// let first_user = users.select((id, name)).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "Sean".into(),
@@ -654,7 +654,7 @@ fn derive_query_id_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenS
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.first(connection)?;
+/// let first_user = users.select((id, name)).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "sean".into(),
@@ -673,7 +673,7 @@ fn derive_query_id_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenS
 /// #
 /// use diesel::deserialize::{self, FromSqlRow, Queryable};
 /// use diesel::row::Row;
-/// use schema::users;
+/// use diesel::sql_types::{Integer, Text};
 ///
 /// # /*
 /// type DB = diesel::sqlite::Sqlite;
@@ -684,9 +684,9 @@ fn derive_query_id_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenS
 ///     name: String,
 /// }
 ///
-/// impl Queryable<users::SqlType, DB> for User
+/// impl Queryable<(Integer, Text), DB> for User
 /// where
-///     (i32, String): FromSqlRow<users::SqlType, DB>,
+///     (i32, String): FromSqlRow<(Integer, Text), DB>,
 /// {
 ///     type Row = (i32, String);
 ///
@@ -705,7 +705,7 @@ fn derive_query_id_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenS
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.first(connection)?;
+/// let first_user = users.select((id, name)).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "sean".into(),
@@ -1805,7 +1805,9 @@ fn view_proc_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream 
 ///         .values(users::name.eq("Sean"))
 ///         .execute(conn)?;
 ///
-///     let users = users::table.load::<(i32, String)>(conn)?;
+///     let users = users::table
+///         .select((users::id, users::name))
+///         .load::<(i32, String)>(conn)?;
 ///
 ///     // Match on the connection type to access
 ///     // the inner connection. This allows us then to use
@@ -1813,7 +1815,9 @@ fn view_proc_inner(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream 
 /// #    #[cfg(feature = "postgres")]
 ///     if let AnyConnection::Postgresql(conn) = conn {
 ///         // perform a postgresql specific query here
-///         let users = users::table.load::<(i32, String)>(conn)?;
+///         let users = users::table
+///             .select((users::id, users::name))
+///             .load::<(i32, String)>(conn)?;
 ///     }
 ///
 ///     Ok(())

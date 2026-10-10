@@ -31,8 +31,13 @@
 //! # fn run_test() -> QueryResult<()> {
 //! #     let connection = &mut establish_connection();
 //! #     use self::users::dsl::*;
-//! let user = users.find(2).get_result::<User>(connection)?;
-//! let users_post = Post::belonging_to(&user).first(connection)?;
+//! let user = users
+//!     .find(2)
+//!     .select((id, name))
+//!     .get_result::<User>(connection)?;
+//! let users_post = Post::belonging_to(&user)
+//!     .select((posts::id, posts::user_id, posts::title))
+//!     .first(connection)?;
 //! let expected = Post {
 //!     id: 3,
 //!     user_id: 2,
@@ -122,9 +127,11 @@
 //! #
 //! let user = users
 //!     .find(1)
+//!     .select((id, name))
 //!     .first::<User>(connection)
 //!     .expect("Error loading user");
 //! let post_list = Post::belonging_to(&user)
+//!     .select((posts::id, posts::user_id, posts::title))
 //!     .load::<Post>(connection)
 //!     .expect("Error loading posts");
 //! let expected = vec![
@@ -216,12 +223,15 @@
 //! #   let connection = &mut establish_connection();
 //! #
 //! let users: Vec<User> = users::table
+//!     .select((users::id, users::name))
 //!     .load::<User>(connection)
 //!     .expect("error loading users");
 //! let posts: Vec<Post> = Post::belonging_to(&users)
+//!     .select((posts::id, posts::user_id, posts::title))
 //!     .load::<Post>(connection)
 //!     .expect("error loading posts");
 //! let comments: Vec<Comment> = Comment::belonging_to(&posts)
+//!     .select((comments::id, comments::post_id, comments::body))
 //!     .load::<Comment>(connection)
 //!     .expect("Error loading comments");
 //! let grouped_comments: Vec<Vec<Comment>> = comments.grouped_by(&posts);

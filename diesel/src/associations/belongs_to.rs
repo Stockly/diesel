@@ -95,8 +95,11 @@ pub trait BelongsTo<Parent> {
 /// #
 /// # fn run_test() -> QueryResult<()> {
 /// #     let connection = &mut establish_connection();
-/// let users = users::table.load::<User>(connection)?;
+/// let users = users::table
+///     .select((users::id, users::name))
+///     .load::<User>(connection)?;
 /// let posts = Post::belonging_to(&users)
+///     .select((posts::id, posts::user_id, posts::title))
 ///     .load::<Post>(connection)?
 ///     .grouped_by(&users);
 /// let data = users.into_iter().zip(posts).collect::<Vec<_>>();
@@ -190,8 +193,12 @@ pub trait GroupedBy<'a, Parent>: IntoIterator + Sized {
     /// #
     /// # fn run_test() -> QueryResult<()> {
     /// #     let connection = &mut establish_connection();
-    /// let users = users::table.load::<User>(connection)?;
-    /// let mut posts = Post::belonging_to(&users).load::<Post>(connection)?;
+    /// let users = users::table
+    ///     .select((users::id, users::name))
+    ///     .load::<User>(connection)?;
+    /// let mut posts = Post::belonging_to(&users)
+    ///     .select((posts::id, posts::user_id, posts::title))
+    ///     .load::<Post>(connection)?;
     /// posts.push(Post {
     ///     id: 9,
     ///     user_id: 42,

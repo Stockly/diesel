@@ -585,7 +585,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     /// # #[cfg(any(feature = "mysql", feature = "mariadb"))]
     /// assert_eq!(Ok(2), insert_count);
     ///
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// assert_eq!(
     ///     Ok(vec![(1, "I DONT KNOW ANYMORE".to_string())]),
     ///     users_in_db
@@ -626,7 +626,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     ///     .set(name.eq("I DONT KNOW ANYMORE"))
     ///     .execute(conn)?;
     ///
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// assert_eq!(
     ///     Ok(vec![(1, "I DONT KNOW ANYMORE".to_string())]),
     ///     users_in_db
@@ -674,7 +674,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     ///     .execute(conn);
     /// assert_eq!(Ok(1), insert_count);
     ///
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// assert_eq!(Ok(vec![(1, "Sean".to_string())]), users_in_db);
     /// # }
     /// # #[cfg(any(feature = "mysql", feature = "mariadb"))]
@@ -712,7 +712,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     ///     .set(&user2)
     ///     .execute(conn)?;
     ///
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// assert_eq!(Ok(vec![(1, "Sean".to_string())]), users_in_db);
     /// # Ok(())
     /// # }
@@ -764,7 +764,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     /// assert_eq!(Ok(2), insert_count);
     ///
     /// # #[cfg(feature = "postgres")]
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// # #[cfg(feature = "postgres")]
     /// assert_eq!(
     ///     Ok(vec![(1, "Sean".to_string()), (2, "Tess".to_string())]),
@@ -813,7 +813,7 @@ impl<T: QuerySource, U, Op, Ret, Target>
     ///     .execute(conn);
     /// assert_eq!(Ok(0), insert_count);
     ///
-    /// let users_in_db = users.load(conn);
+    /// let users_in_db = users.select((id, name)).load(conn);
     /// assert_eq!(Ok(vec![(1, "Pascal".to_string())]), users_in_db);
     /// # }
     /// # #[cfg(any(feature = "mysql", feature = "mariadb"))]

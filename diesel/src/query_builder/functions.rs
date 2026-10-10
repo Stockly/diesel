@@ -32,11 +32,12 @@ use alloc::string::String;
 /// #     let connection = &mut establish_connection();
 /// let updated_row = diesel::update(users.filter(id.eq(1)))
 ///     .set(name.eq("James"))
+///     .returning((id, name))
 ///     .get_result(connection);
 /// // On backends that support it, you can call `get_result` instead of `execute`
-/// // to have `RETURNING *` automatically appended to the query. Alternatively, you
-/// // can explicitly return an expression by using the `returning` method before
-/// // getting the result.
+/// // to have a `RETURNING` clause appended to the query. As tables have no default
+/// // selection, the returned expression must be given explicitly by using the
+/// // `returning` method before getting the result.
 /// // Note for backend `mariadb`: support for `UPDATE ... RETURNING` was introduced with version 13.0
 /// assert_eq!(Ok((1, "James".to_string())), updated_row);
 /// # }
@@ -72,6 +73,7 @@ use alloc::string::String;
 ///
 /// let updated_row = diesel::update(users.filter(id.eq(1)))
 ///     .set((name.eq("James"), surname.eq("Bond")))
+///     .returning((id, name, surname))
 ///     .get_result(connection);
 ///
 /// assert_eq!(Ok((1, "James".to_string(), "Bond".to_string())), updated_row);
@@ -135,7 +137,10 @@ use alloc::string::String;
 ///
 /// diesel::update(users::table).set(&users_batch).execute(connection).unwrap();
 ///
-/// let updated_rows = users::table.order(users::id).load(connection);
+/// let updated_rows = users::table
+///     .select((users::id, users::name, users::surname))
+///     .order(users::id)
+///     .load(connection);
 ///
 /// assert_eq!(
 ///     Ok(vec![
@@ -194,7 +199,10 @@ use alloc::string::String;
 ///
 /// diesel::update(users::table).set(&users_batch).execute(connection).unwrap();
 ///
-/// let updated_rows = users::table.order(users::id).load(connection);
+/// let updated_rows = users::table
+///     .select((users::id, users::name, users::surname))
+///     .order(users::id)
+///     .load(connection);
 ///
 /// assert_eq!(
 ///     Ok(vec![

@@ -97,7 +97,7 @@ where
     ///     .default_values()
     ///     .execute(connection)
     ///     .unwrap();
-    /// let inserted_user = users.first(connection)?;
+    /// let inserted_user = users.select((name, hair_color)).first(connection)?;
     /// let expected_data = (String::from("Sean"), String::from("Green"));
     ///
     /// assert_eq!(expected_data, inserted_user);
