@@ -97,50 +97,34 @@ fn all_columns_tuple_expr<'a>(
     quote::quote! { (#(#fields)*) }
 }
 
-/// `AllColumns` needs `2^n` cfg-gated variants because Rust does not allow
-/// `#[cfg]` on tuple type fields (rust-lang/rfcs#3532). `SqlType` is derived
-/// from `AllColumns` and the remaining items reference these aliases, so they
-/// stay as single declarations.
+/// `AllColumns` is **disabled** in this fork. Upstream expands it to a tuple of
+/// every column (with `2^n` cfg-gated variants for `#[cfg]`-gated columns, see
+/// rust-lang/rfcs#3532), which is very expensive to type-check for wide tables.
+/// Here both the `AllColumns` type and the `all_columns` const are replaced by
+/// the `SelectClauseNotSet` marker for tables and views alike. The column/cfg
+/// inputs are kept (but unused) so this stays a minimal, easy-to-rebase diff.
 fn generate_aggregate_variants<'a>(
     non_gated_columns: &[&'a ColumnDef],
     cfg_groups: &[CfgGroup<'a>],
     kind_name: &str,
 ) -> AggregateTokens {
-    let base_column_names: Vec<_> = non_gated_columns.iter().map(|c| &c.column_name).collect();
+    let _ = (non_gated_columns, cfg_groups);
 
-    let mut all_columns_type_variants = Vec::new();
-
-    for flags in cfg_combinations(cfg_groups.len()) {
-        let cfg_condition = generate_combined_cfg_condition(cfg_groups, &flags);
-
-        let mut column_names = base_column_names.clone();
-        for (group, &enabled) in cfg_groups.iter().zip(&flags) {
-            if enabled {
-                for col in &group.columns {
-                    column_names.push(&col.column_name);
-                }
-            }
-        }
-
-        all_columns_type_variants.push(quote::quote! {
-            #cfg_condition
-            #[allow(non_camel_case_types, dead_code)]
-            #[doc = concat!("The tuple of all column structs on this ", #kind_name)]
-            pub type AllColumns = (#(#column_names,)*);
-        });
-    }
-
-    let tuple_expr = all_columns_tuple_expr(non_gated_columns, cfg_groups);
+    let all_columns_type_variants = quote::quote! {
+        #[allow(dead_code)]
+        #[doc = concat!("The default selection of this ", #kind_name)]
+        pub type AllColumns = self::diesel::query_builder::SelectClauseNotSet;
+    };
 
     let all_columns_const = quote::quote! {
         #[allow(non_upper_case_globals, dead_code)]
-        #[doc = concat!("A tuple of all of the columns on this", #kind_name)]
-        pub const all_columns: AllColumns = #tuple_expr;
+        #[doc = concat!("The default selection of this ", #kind_name)]
+        pub const all_columns: AllColumns = self::diesel::query_builder::SelectClauseNotSet;
     };
 
     AggregateTokens {
         all_columns_const,
-        all_columns_type_variants: quote::quote! { #(#all_columns_type_variants)* },
+        all_columns_type_variants,
     }
 }
 
@@ -587,13 +571,6 @@ fn expand(input: TableDecl, kind: QuerySourceMacroKind) -> TokenStream {
         #(#meta)*
         #[allow(unused_imports, dead_code, unreachable_pub, unused_qualifications)]
         pub mod #table_name {
-            const _: () = {
-                assert!(
-                    #column_count <= diesel::internal::table_macro::MAX_COLUMN_COUNT,
-                    #too_many_columns_error_message
-                );
-            };
-
             use ::diesel;
             pub use self::columns::*;
             #(#imports)*
