@@ -1,6 +1,6 @@
 use crate::backend::Backend;
 use crate::expression::is_aggregate;
-use crate::expression::{expression_types::NotSelectable, Expression, ValidGrouping};
+use crate::expression::{Expression, ValidGrouping, expression_types::NotSelectable};
 use crate::query_builder::{AstPass, QueryFragment, QueryId};
 use crate::query_source::aliasing::{Alias, FieldAliasMapper};
 use crate::{AppearsOnTable, QueryResult, SelectableExpression};
