@@ -684,7 +684,7 @@ impl<T, U> Eq<T, U> {
 /// It's used to typecheck [`.eq_coerce()`](crate::expression_methods::ExpressionMethods::eq_coerce())
 pub trait CoerceEqual<ST> {}
 impl<ST> CoerceEqual<ST> for ST {}
-// All the types below work on all 3 supported backends.
+// All the types below work on all 4 supported backends.
 // If adding more types here and they don't all work on all backends, it will be necessary to
 // prevent coercions that don't work from compiling by restricting the QueryFragment impl on
 // coercions that do work.
