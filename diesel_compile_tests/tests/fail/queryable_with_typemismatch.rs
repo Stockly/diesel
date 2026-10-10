@@ -18,6 +18,9 @@ struct User {
 fn main() {
     let mut conn = PgConnection::establish("...").unwrap();
 
-    users::table.load::<User>(&mut conn).unwrap();
-    //~^ ERROR: the trait bound `(Integer, Text): CompatibleType<User, _>` is not satisfied
+    users::table
+        .select((users::id, users::name))
+        .load::<User>(&mut conn)
+        .unwrap();
+    //~^^ ERROR: the trait bound `(Integer, Text): CompatibleType<User, _>` is not satisfied
 }

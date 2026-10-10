@@ -1,5 +1,5 @@
 warning: use of deprecated function `diesel::dsl::any`: Use `ExpressionMethods::eq_any` instead
-  --> tests/fail/subselect_cannot_reference_random_tables.rs:36:30
+  --> tests/fail/subselect_cannot_reference_random_tables.rs:37:30
    |
 LL |         .filter(users::id.eq(any(
    |                              ^^^
@@ -12,8 +12,14 @@ warning: use of deprecated function `diesel::dsl::any`: Use `ExpressionMethods::
 LL |     use diesel::dsl::{any, exists};
    |                       ^^^
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_random_tables.rs:33:10
+   |
+LL |         .load::<(i32,)>(&mut conn);
+   |          ^^^^
+
 error[E0271]: type mismatch resolving `<Join<table, table, Inner> as AppearsInFromClause<table>>::Count == Once`
-    --> tests/fail/subselect_cannot_reference_random_tables.rs:32:25
+    --> tests/fail/subselect_cannot_reference_random_tables.rs:33:25
      |
   LL |         .load::<(i32,)>(&mut conn);
      |          ----           ^^^^^^^^^ expected `Once`, found `Never`
@@ -45,8 +51,14 @@ LL |         Self: LoadQuery<'query, Conn, U>,
   
           = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_random_tables.rs:41:10
+   |
+LL |         .load::<(i32,)>(&mut conn);
+   |          ^^^^
+
 error[E0271]: type mismatch resolving `<Join<table, table, Inner> as AppearsInFromClause<table>>::Count == Once`
-    --> tests/fail/subselect_cannot_reference_random_tables.rs:39:25
+    --> tests/fail/subselect_cannot_reference_random_tables.rs:41:25
      |
   LL |         .load::<(i32,)>(&mut conn);
      |          ----           ^^^^^^^^^ expected `Once`, found `Never`
@@ -78,8 +90,14 @@ LL |         Self: LoadQuery<'query, Conn, U>,
   
           = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_random_tables.rs:47:10
+   |
+LL |         .load::<(i32,)>(&mut conn);
+   |          ^^^^
+
 error[E0271]: type mismatch resolving `<Join<table, table, Inner> as AppearsInFromClause<table>>::Count == Once`
-    --> tests/fail/subselect_cannot_reference_random_tables.rs:44:25
+    --> tests/fail/subselect_cannot_reference_random_tables.rs:47:25
      |
   LL |         .load::<(i32,)>(&mut conn);
      |          ----           ^^^^^^^^^ expected `Once`, found `Never`

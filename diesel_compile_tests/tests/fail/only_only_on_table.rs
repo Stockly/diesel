@@ -19,11 +19,11 @@ fn main() {
 
     // .only() is not supported for SQLite
     let mut conn = SqliteConnection::establish("").unwrap();
-    foo::table.only().load(&mut conn).unwrap();
-    //~^ ERROR: the trait bound `Only<foo::table>: LoadQuery<'_, diesel::SqliteConnection, _>` is not satisfied
+    foo::table.only().select(foo::id).load(&mut conn).unwrap();
+    //~^ ERROR: `Only<foo::table>` is no valid SQL fragment for the `Sqlite` backend
 
     // .only() is not supported for MySql
     let mut conn = MysqlConnection::establish("").unwrap();
-    foo::table.only().load(&mut conn).unwrap();
-    //~^ ERROR: the trait bound `Only<foo::table>: LoadQuery<'_, MysqlLikeConnection<Mysql>, _>` is not satisfied
+    foo::table.only().select(foo::id).load(&mut conn).unwrap();
+    //~^ ERROR: `Only<foo::table>` is no valid SQL fragment for the `Mysql` backend
 }

@@ -1,5 +1,13 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/cannot_load_default_select_with_group_by.rs:19:10
+   |
+LL |         .load::<(i32, String)>(&mut conn);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0271]: type mismatch resolving `<name as IsContainedInGroupBy<id>>::Output == Yes`
-    --> tests/fail/cannot_load_default_select_with_group_by.rs:16:32
+    --> tests/fail/cannot_load_default_select_with_group_by.rs:19:32
      |
   LL |         .load::<(i32, String)>(&mut conn);
      |          ----                  ^^^^^^^^^ type mismatch resolving `<name as IsContainedInGroupBy<id>>::Output == Yes`

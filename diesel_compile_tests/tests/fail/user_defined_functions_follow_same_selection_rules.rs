@@ -41,6 +41,7 @@ fn main() {
     //~^ ERROR: the trait bound `foo<Bound<Integer, i32>>: AsExpression<Text>` is not satisfied
 
     let _ = users::table
+        .select((users::id, users::name))
         .filter(name.eq(bar(title)))
         .load::<User>(&mut conn);
     //~^ ERROR: type mismatch resolving `<table as AppearsInFromClause<table>>::Count == Once`

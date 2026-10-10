@@ -73,14 +73,24 @@ LL | pub trait Table: QuerySource + AsQuery + Sized {
    = note: the following trait defines an item `only`, perhaps you need to implement it:
            candidate #1: `diesel::dsl::OnlyDsl`
 
-error[E0277]: the trait bound `Only<foo::table>: LoadQuery<'_, diesel::SqliteConnection, _>` is not satisfied
-    --> tests/fail/only_only_on_table.rs:22:28
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/only_only_on_table.rs:22:39
+   |
+LL |     foo::table.only().select(foo::id).load(&mut conn).unwrap();
+   |                                       ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+error[E0277]: `Only<foo::table>` is no valid SQL fragment for the `Sqlite` backend
+    --> tests/fail/only_only_on_table.rs:22:44
      |
-  LL |     foo::table.only().load(&mut conn).unwrap();
-     |                       ---- ^^^^^^^^^ the trait `QueryFragment<Sqlite>` is not implemented for `Only<foo::table>`
-     |                       |
-     |                       required by a bound introduced by this call
+  LL |     foo::table.only().select(foo::id).load(&mut conn).unwrap();
+     |                                       ---- ^^^^^^^^^ the trait `QueryFragment<Sqlite>` is not implemented for `Only<foo::table>`
+     |                                       |
+     |                                       required by a bound introduced by this call
      |
+     = note: this usually means that the `Sqlite` database system does not support 
+             this SQL syntax
 help: the trait `QueryFragment<Sqlite, NotSpecialized>` is not implemented for `Only<foo::table>`
       but trait `QueryFragment<Pg, NotSpecialized>` is implemented for it
     --> DIESEL/diesel/diesel/src/pg/query_builder/only.rs
@@ -92,8 +102,8 @@ help: the trait `QueryFragment<Sqlite, NotSpecialized>` is not implemented for `
      = help: for that trait implementation, expected `Pg`, found `Sqlite`
      = note: required for `diesel::internal::table_macro::FromClause<Only<foo::table>>` to implement `QueryFragment<Sqlite>`
      = note: 2 redundant requirements hidden
-     = note: required for `SelectStatement<FromClause<Only<table>>>` to implement `QueryFragment<Sqlite>`
-     = note: required for `Only<foo::table>` to implement `LoadQuery<'_, diesel::SqliteConnection, _>`
+     = note: required for `SelectStatement<FromClause<Only<table>>, _>` to implement `QueryFragment<Sqlite>`
+     = note: required for `SelectStatement<FromClause<Only<table>>, _>` to implement `LoadQuery<'_, diesel::SqliteConnection, _>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -104,14 +114,22 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
-error[E0277]: the trait bound `Only<foo::table>: LoadQuery<'_, MysqlLikeConnection<Mysql>, _>` is not satisfied
-    --> tests/fail/only_only_on_table.rs:27:28
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/only_only_on_table.rs:27:39
+   |
+LL |     foo::table.only().select(foo::id).load(&mut conn).unwrap();
+   |                                       ^^^^
+
+error[E0277]: `Only<foo::table>` is no valid SQL fragment for the `Mysql` backend
+    --> tests/fail/only_only_on_table.rs:27:44
      |
-  LL |     foo::table.only().load(&mut conn).unwrap();
-     |                       ---- ^^^^^^^^^ the trait `QueryFragment<Mysql>` is not implemented for `Only<foo::table>`
-     |                       |
-     |                       required by a bound introduced by this call
+  LL |     foo::table.only().select(foo::id).load(&mut conn).unwrap();
+     |                                       ---- ^^^^^^^^^ the trait `QueryFragment<Mysql>` is not implemented for `Only<foo::table>`
+     |                                       |
+     |                                       required by a bound introduced by this call
      |
+     = note: this usually means that the `Mysql` database system does not support 
+             this SQL syntax
 help: the trait `QueryFragment<Mysql, NotSpecialized>` is not implemented for `Only<foo::table>`
       but trait `QueryFragment<Pg, NotSpecialized>` is implemented for it
     --> DIESEL/diesel/diesel/src/pg/query_builder/only.rs
@@ -123,8 +141,8 @@ help: the trait `QueryFragment<Mysql, NotSpecialized>` is not implemented for `O
      = help: for that trait implementation, expected `Pg`, found `Mysql`
      = note: required for `diesel::internal::table_macro::FromClause<Only<foo::table>>` to implement `QueryFragment<Mysql>`
      = note: 2 redundant requirements hidden
-     = note: required for `SelectStatement<FromClause<Only<table>>>` to implement `QueryFragment<Mysql>`
-     = note: required for `Only<foo::table>` to implement `LoadQuery<'_, MysqlLikeConnection<Mysql>, _>`
+     = note: required for `SelectStatement<FromClause<Only<table>>, _>` to implement `QueryFragment<Mysql>`
+     = note: required for `SelectStatement<FromClause<Only<table>>, _>` to implement `LoadQuery<'_, MysqlLikeConnection<Mysql>, _>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |

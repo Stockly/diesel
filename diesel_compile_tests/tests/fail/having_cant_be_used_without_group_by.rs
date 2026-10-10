@@ -30,6 +30,7 @@ fn main() {
         .load(&mut conn);
 
     users::table
+        .select(users::name)
         .into_boxed()
         .having(users::id.gt(1))
         //~^ ERROR: the trait bound `(): Expression` is not satisfied

@@ -1,3 +1,23 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+ --> tests/fail/array_expressions_must_be_same_type.rs:9:10
+  |
+LL |         .get_result::<Vec<i32>>(&mut connection)
+  |          ^^^^^^^^^^
+  |
+  = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/array_expressions_must_be_same_type.rs:12:10
+   |
+LL |         .get_result::<Vec<f64>>(&mut connection)
+   |          ^^^^^^^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/array_expressions_must_be_same_type.rs:20:10
+   |
+LL |         .get_result::<Vec<i32>>(&mut connection)
+   |          ^^^^^^^^^^
+
 error[E0277]: cannot select `f64` from `diesel::internal::table_macro::NoFromClause`
    --> tests/fail/array_expressions_must_be_same_type.rs:15:12
     |
@@ -219,6 +239,12 @@ note: required by a bound in `diesel::dsl::array`
  LL |     T: IntoArrayExpression<ST>,
     |        ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `array`
     = note: this error originates in the derive macro `AsExpression` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/array_expressions_must_be_same_type.rs:31:10
+   |
+LL |         .get_result::<Vec<f64>>(&mut connection)
+   |          ^^^^^^^^^^
 
 error[E0277]: cannot select `{integer}` from `diesel::internal::table_macro::NoFromClause`
    --> tests/fail/array_expressions_must_be_same_type.rs:26:12

@@ -21,7 +21,7 @@ LL | |     Predicate::SqlType: BoolOrNullableBool,
  
     
 error[E0277]: the trait bound `(): Expression` is not satisfied
-  --> tests/fail/having_cant_be_used_without_group_by.rs:34:10
+  --> tests/fail/having_cant_be_used_without_group_by.rs:35:10
    |
 LL |         .having(users::id.gt(1))
    |          ^^^^^^ the trait `Expression` is not implemented for `()`
@@ -36,11 +36,19 @@ LL |         .having(users::id.gt(1))
              CaseWhen<CaseWhenConditionsLeaf<W, T>, _>
              Collate<T, C>
            and N others
-   = note: required for `BoxedSelectStatement<'_, (Integer, Text), _, _>` to implement `HavingDsl<_>`
+   = note: required for `BoxedSelectStatement<'_, Text, _, _>` to implement `HavingDsl<_>`
 
    
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/having_cant_be_used_without_group_by.rs:37:10
+   |
+LL |         .load(&mut conn);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0271]: type mismatch resolving `<table as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/having_cant_be_used_without_group_by.rs:41:10
+  --> tests/fail/having_cant_be_used_without_group_by.rs:42:10
    |
 LL |         .having(posts::id.eq(42))
    |          ^^^^^^ expected `Once`, found `Never`
@@ -57,8 +65,14 @@ LL |         id -> Integer,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/having_cant_be_used_without_group_by.rs:44:10
+   |
+LL |         .load(&mut conn);
+   |          ^^^^
+
 error[E0271]: type mismatch resolving `<table as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/having_cant_be_used_without_group_by.rs:49:10
+  --> tests/fail/having_cant_be_used_without_group_by.rs:50:10
    |
 LL |         .having(posts::id.eq(42))
    |          ^^^^^^ expected `Once`, found `Never`
@@ -74,3 +88,9 @@ LL |         id -> Integer,
    = note: required for `BoxedSelectStatement<'_, Text, _, _, id>` to implement `HavingDsl<Grouped<Eq<id, Bound<Integer, i32>>>>`
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/having_cant_be_used_without_group_by.rs:52:10
+   |
+LL |         .load(&mut conn);
+   |          ^^^^

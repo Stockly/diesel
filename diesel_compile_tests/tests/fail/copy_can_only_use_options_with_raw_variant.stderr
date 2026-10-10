@@ -1,5 +1,5 @@
 error[E0599]: no method named `with_format` found for struct `CopyFromQuery<table, InsertableWrapper<Vec<_>>>` in the current scope
-  --> tests/fail/copy_can_only_use_options_with_raw_variant.rs:49:10
+  --> tests/fail/copy_can_only_use_options_with_raw_variant.rs:51:10
    |
 LL | /     diesel::copy_from(users::table)
 LL | |         .from_insertable(vec![NewUser { name: "John" }])
@@ -11,10 +11,10 @@ LL | |         .with_format(CopyFormat::Csv)
    = note: the method was found for `CopyFromQuery<T, pg::query_builder::copy::copy_from::CopyFrom<C, F>>`
 
    
-error[E0599]: the method `load` exists for struct `CopyToQuery<table, CopyToOptions>`, but its trait bounds were not satisfied
-   --> tests/fail/copy_can_only_use_options_with_raw_variant.rs:56:10
+error[E0599]: the method `load` exists for struct `CopyToQuery<(id, name), CopyToOptions>`, but its trait bounds were not satisfied
+   --> tests/fail/copy_can_only_use_options_with_raw_variant.rs:58:10
     |
- LL | /     diesel::copy_to(users::table)
+ LL | /     diesel::copy_to((users::id, users::name))
  LL | |         .with_format(CopyFormat::Csv)
  LL | |         .load::<User, _>(conn)
     | |_________-^^^^
@@ -25,11 +25,11 @@ LL |   pub struct CopyToQuery<T, O> {
     |   ---------------------------- doesn't satisfy `_: RunQueryDsl<_>` or `_: RunQueryDslSupport`
     |
     = note: the following trait bounds were not satisfied:
-            `CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
-            which is required by `CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
-            `&CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
-            which is required by `&CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
-            `&mut CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
-            which is required by `&mut CopyToQuery<users::table, pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
+            `CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
+            which is required by `CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
+            `&CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
+            which is required by `&CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
+            `&mut CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: RunQueryDslSupport`
+            which is required by `&mut CopyToQuery<(columns::id, columns::name), pg::query_builder::copy::copy_to::CopyToOptions>: diesel::RunQueryDsl<_>`
  
     For more information about this error, try `rustc --explain E0599`.

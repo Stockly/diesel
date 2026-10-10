@@ -1,3 +1,41 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:42:10
+   |
+LL |         .load::<(i64, Option<i32>)>(&mut conn);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:52:10
+   |
+LL |         .load::<(i32, Option<i64>)>(&mut conn);
+   |          ^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:63:10
+   |
+LL |         .load::<(i32, Option<i64>)>(&mut conn);
+   |          ^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:77:10
+   |
+LL |         .load::<(i64, bool)>(&mut conn);
+   |          ^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:86:10
+   |
+LL |         .load::<(i32, bool)>(&mut conn);
+   |          ^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:96:10
+   |
+LL |         .load::<(i64, Option<i32>)>(&mut conn);
+   |          ^^^^
+
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
    --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:101:10
     |
@@ -20,6 +58,12 @@ LL |     impl MixedAggregates<Never> for Yes {
     = note: required for `SelectStatement<FromClause<table>>` to implement `SelectDsl<(CountStar, Grouped<Subselect<_, _>>)>`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:109:10
+    |
+LL |         .load::<(i64, Option<i64>)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
     --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:109:37
      |
@@ -80,6 +124,12 @@ help: `parents::columns::id` implements trait `ValidGrouping<GroupByClause>`
  
         = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:122:10
+    |
+LL |         .load::<(String, Option<i64>)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: the trait bound `id: ValidGrouping<SubselectGroupBy<_, _>>` is not satisfied
    --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:126:10
     |
@@ -107,6 +157,12 @@ help: `parents::columns::id` implements trait `ValidGrouping<GroupByClause>`
  
         = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:135:10
+    |
+LL |         .load::<(String, bool)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
    --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:138:10
     |
@@ -129,6 +185,12 @@ LL |     impl MixedAggregates<Never> for Yes {
     = note: required for `SelectStatement<FromClause<Alias<p>>>` to implement `SelectDsl<(CountStar, Exists<_>)>`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:143:10
+    |
+LL |         .load::<(i64, bool)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
     --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:143:30
      |
@@ -210,6 +272,12 @@ note: required for `parents::columns::id` to implement `AppearsOnTable<children:
  
         = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:170:10
+    |
+LL |         .load::<(i64, Option<i64>)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: cannot box `SelectStatement<FromClause<table>, _, _, _>` for backend `Pg`
    --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:178:18
     |
@@ -263,6 +331,12 @@ LL |     impl MixedAggregates<Never> for Yes {
     = note: required for `SelectStatement<FromClause<table>>` to implement `SelectDsl<(CountStar, Exists<_>)>`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+   --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:198:10
+    |
+LL |         .load::<(i64, bool)>(&mut conn);
+    |          ^^^^
+
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
     --> tests/fail/subselect_cannot_reference_ungrouped_outer_columns.rs:198:30
      |

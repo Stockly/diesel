@@ -85,6 +85,14 @@ LL | struct User {
 
       = note: this error originates in the derive macro `Selectable` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/selectable_with_typemisamatch.rs:43:10
+   |
+LL |         .load(&mut conn)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: the trait bound `SelectBy<User, _>: CompatibleType<_, _>` is not satisfied
     --> tests/fail/selectable_with_typemisamatch.rs:43:15
      |
@@ -121,4 +129,10 @@ LL |     where
 LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
-     For more information about this error, try `rustc --explain E0277`.
+     
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/selectable_with_typemisamatch.rs:48:10
+   |
+LL |         .load(&mut conn)
+   |          ^^^^
+For more information about this error, try `rustc --explain E0277`.

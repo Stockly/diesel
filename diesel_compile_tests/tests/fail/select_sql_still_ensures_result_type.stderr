@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/select_sql_still_ensures_result_type.rs:16:30
+   |
+LL |     let count = select_count.get_result::<String>(&mut connection).unwrap();
+   |                              ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: cannot deserialize a value of the database type `BigInt` as `std::string::String`
     --> tests/fail/select_sql_still_ensures_result_type.rs:16:51
      |

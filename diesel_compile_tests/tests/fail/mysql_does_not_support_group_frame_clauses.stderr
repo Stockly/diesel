@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/mysql_does_not_support_group_frame_clauses.rs:21:10
+   |
+LL |         .load::<i64>(&mut connection)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `Groups` is no valid SQL fragment for the `Mysql` backend
     --> tests/fail/mysql_does_not_support_group_frame_clauses.rs:21:22
      |

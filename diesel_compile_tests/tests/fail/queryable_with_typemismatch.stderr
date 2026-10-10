@@ -1,10 +1,18 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/queryable_with_typemismatch.rs:23:10
+   |
+LL |         .load::<User>(&mut conn)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: the trait bound `(Integer, Text): CompatibleType<User, _>` is not satisfied
-    --> tests/fail/queryable_with_typemismatch.rs:21:31
+    --> tests/fail/queryable_with_typemismatch.rs:23:23
      |
-  LL |     users::table.load::<User>(&mut conn).unwrap();
-     |                  ----         ^^^^^^^^^ unsatisfied trait bound
-     |                  |
-     |                  required by a bound introduced by this call
+  LL |         .load::<User>(&mut conn)
+     |          ----         ^^^^^^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<User, _>` is not implemented for `(diesel::sql_types::Integer, diesel::sql_types::Text)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -21,7 +29,7 @@ error[E0277]: the trait bound `(Integer, Text): CompatibleType<User, _>` is not 
                `Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6, ST7)>` implements `CompatibleType<Option<__T>, __DB>`
                `Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6, ST7, ST8)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, User>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, User>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |

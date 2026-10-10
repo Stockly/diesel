@@ -152,10 +152,12 @@ LL | |     D: ValidDistinctForGroupBy<Selection, G::Expressions>,
  
     
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
-   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:62:19
+   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:62:59
     |
- LL |     let _ = users.order_by(max(id));
-    |                   ^^^^^^^^ unsatisfied trait bound
+ LL |     let _ = users.select((id, name, hair_color)).order_by(max(id));
+    |                                                  -------- ^^^^^^^ unsatisfied trait bound
+    |                                                  |
+    |                                                  required by a bound introduced by this call
     |
     = help: the trait `MixedAggregates<diesel::expression::is_aggregate::Yes>` is not implemented for `diesel::expression::is_aggregate::No`
     = note: you tried to combine expressions that aggregate over a certain column with expressions that don't aggregate over that column
@@ -169,7 +171,15 @@ LL |     impl MixedAggregates<No> for No {
 ...
 LL |     impl MixedAggregates<Never> for No {
     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `MixedAggregates<diesel::expression::is_aggregate::Never>`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `OrderDsl<max<Integer, id>>`
+    = note: required for `SelectStatement<FromClause<table>, _>` to implement `OrderDsl<max<Integer, id>>`
+note: required by a bound in `order_by`
+   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
+    |
+LL |     fn order_by<Expr>(self, expr: Expr) -> OrderBy<Self, Expr>
+    |        -------- required by a bound in this associated function
+...
+LL |         Self: methods::OrderDsl<Expr>,
+    |               ^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::order_by`
  
     
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
@@ -194,12 +204,12 @@ LL |     impl MixedAggregates<Never> for No {
  
     
 error[E0277]: mixing aggregate and not aggregate expressions is not allowed in SQL
-   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:70:48
+   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:70:59
     |
- LL |     let _ = users.order_by(name).then_order_by(max(id));
-    |                                  ------------- ^^^^^^^ unsatisfied trait bound
-    |                                  |
-    |                                  required by a bound introduced by this call
+ LL |     let _ = users.select(id).order_by(name).then_order_by(max(id));
+    |                                             ------------- ^^^^^^^ unsatisfied trait bound
+    |                                             |
+    |                                             required by a bound introduced by this call
     |
     = help: the trait `MixedAggregates<diesel::expression::is_aggregate::Yes>` is not implemented for `diesel::expression::is_aggregate::No`
     = note: you tried to combine expressions that aggregate over a certain column with expressions that don't aggregate over that column
@@ -522,35 +532,36 @@ note: required for `child::columns::value` to implement `ValidGrouping<parent::c
  
         = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0277]: the trait bound `SkipSelectableExpressionBoundCheckWrapper<_>: ValidGrouping<id>` is not satisfied
-    --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:144:21
-     |
- LL |         .get_result(conn);
-     |          ---------- ^^^^ unsatisfied trait bound
-     |          |
-     |          required by a bound introduced by this call
-     |
-help: the trait `ValidGrouping<parent::columns::id>` is not implemented for `SkipSelectableExpressionBoundCheckWrapper<(_, _)>`
-      but trait `ValidGrouping<()>` is implemented for it
-    --> DIESEL/diesel/diesel/src/query_source/joins.rs
-     |
- LL |     impl<T> ValidGrouping<()> for SkipSelectableExpressionBoundCheckWrapper<T> {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     = help: for that trait implementation, expected `()`, found `parent::columns::id`
-     = note: required for `SelectStatement<FromClause<_>, _, _, _, _, _, _>` to implement `Query`
-     = note: required for `SelectStatement<FromClause<_>, _, _, _, _, _, _>` to implement `LoadQuery<'_, _, _>`
-note: required by a bound in `get_result`
-    --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-     |
-LL |     fn get_result<'query, U>(self, conn: &mut Conn) -> QueryResult<U>
-     |        ---------- required by a bound in this associated function
-LL |     where
-LL |         Self: LoadQuery<'query, Conn, U>,
-     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
-  
-     
+error[E0277]: the trait bound `SelectStatement<_, _, _, _, _, _, _>: SelectDsl<_>` is not satisfied
+   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:144:10
+    |
+LL |         .select(parent::id)
+    |          ^^^^^^ the trait `SelectDsl<_>` is not implemented for `SelectStatement<FromClause<_>, _, _, _, _, _, _>`
+    |
+help: the following other types implement trait `SelectDsl<Selection>`
+   --> DIESEL/diesel/diesel/src/query_builder/select_statement/dsl_impls.rs
+    |
+LL | / impl<F, S, D, W, O, LOf, G, H, LC, Selection> SelectDsl<Selection>
+LL | |     for SelectStatement<FromClause<F>, S, D, W, O, LOf, G, H, LC>
+LL | | where
+LL | |     G: ValidGroupByClause,
+...   |
+LL | |     <Selection as ValidGrouping<G::Expressions>>::IsAggregate:
+LL | |         MixedAggregates<<O as ValidGrouping<G::Expressions>>::IsAggregate>,
+    | |___________________________________________________________________________^ `SelectStatement<_, S, D, W, O, LOf, G, H, LC>`
+...
+LL | / impl<S, D, W, O, LOf, G, H, LC, Selection> SelectDsl<Selection>
+LL | |     for SelectStatement<NoFromClause, S, D, W, O, LOf, G, H, LC>
+LL | | where
+LL | |     G: ValidGroupByClause,
+LL | |     Selection: SelectableExpression<NoFromClause> + ValidGrouping<G::Expressions>,
+LL | |     SelectStatement<NoFromClause, SelectClause<Selection>, D, W, O, LOf, G, H, LC>: Selec...
+LL | |     D: ValidDistinctForGroupBy<Selection, G::Expressions>,
+    | |__________________________________________________________^ `SelectStatement<_, S, D, W, O, LOf, G, H, LC>`
+ 
+    
 error[E0277]: the trait bound `SelectStatement<_, _, _, _, _, _, _>: ThenOrderDsl<_>` is not satisfied
-   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:152:10
+   --> tests/fail/cannot_mix_aggregate_and_non_aggregate_in_order_by.rs:153:10
     |
 LL |         .then_order_by(parent::id);
     |          ^^^^^^^^^^^^^ unsatisfied trait bound

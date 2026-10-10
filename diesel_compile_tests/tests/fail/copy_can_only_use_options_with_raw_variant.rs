@@ -32,13 +32,15 @@ fn main() {
         .unwrap();
 
     diesel::copy_from(users::table)
-        .from_raw_data(users::table, |copy| diesel::QueryResult::Ok(()))
+        .from_raw_data((users::id, users::name), |copy| diesel::QueryResult::Ok(()))
         .with_format(CopyFormat::Csv)
         .execute(conn)
         .unwrap();
 
-    diesel::copy_to(users::table).load::<User, _>(conn).unwrap();
-    diesel::copy_to(users::table)
+    diesel::copy_to((users::id, users::name))
+        .load::<User, _>(conn)
+        .unwrap();
+    diesel::copy_to((users::id, users::name))
         .with_format(CopyFormat::Csv)
         .load_raw(conn)
         .unwrap();
@@ -51,9 +53,9 @@ fn main() {
         .execute(conn)
         .unwrap();
 
-    diesel::copy_to(users::table)
+    diesel::copy_to((users::id, users::name))
         .with_format(CopyFormat::Csv)
         .load::<User, _>(conn)
-        //~^ ERROR: the method `load` exists for struct `CopyToQuery<table, CopyToOptions>`, but its trait bounds were not satisfied
+        //~^ ERROR: the method `load` exists for struct `CopyToQuery<(id, name), CopyToOptions>`, but its trait bounds were not satisfied
         .unwrap();
 }

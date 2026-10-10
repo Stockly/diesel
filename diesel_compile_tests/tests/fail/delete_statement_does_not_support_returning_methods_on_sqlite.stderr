@@ -1,10 +1,18 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:18:10
+   |
+LL |         .get_result(&mut connection);
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `ReturningClause<(id, name)>` is no valid SQL fragment for the `Sqlite` backend
-    --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:16:54
+    --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:18:21
      |
-  LL |     delete(users.filter(name.eq("Bill"))).get_result(&mut connection);
-     |                                           ---------- ^^^^^^^^^^^^^^^ unsatisfied trait bound
-     |                                           |
-     |                                           required by a bound introduced by this call
+  LL |         .get_result(&mut connection);
+     |          ---------- ^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `QueryFragment<Sqlite, diesel::internal::derives::multiconnection::sql_dialect::returning_clause::DoesNotSupportReturningClause>` is not implemented for `ReturningClause<(id, name)>`
      = note: this usually means that the `Sqlite` database system does not support 
@@ -46,7 +54,7 @@ help: `diesel::internal::derives::multiconnection::ReturningClause<Expr>` implem
      = note: required for `ReturningClause<(id, name)>` to implement `QueryFragment<Sqlite>`
      = note: 1 redundant requirement hidden
      = note: required for `DeleteStatement<table, WhereClause<Grouped<_>>, _>` to implement `QueryFragment<Sqlite>`
-     = note: required for `DeleteStatement<table, WhereClause<Grouped<_>>>` to implement `LoadQuery<'_, diesel::SqliteConnection, _>`
+     = note: required for `DeleteStatement<table, WhereClause<Grouped<_>>, _>` to implement `LoadQuery<'_, diesel::SqliteConnection, _>`
 note: required by a bound in `get_result`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -57,8 +65,14 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:23:10
+   |
+LL |         .get_result(&mut connection);
+   |          ^^^^^^^^^^
+
 error[E0277]: `ReturningClause<name>` is no valid SQL fragment for the `Sqlite` backend
-    --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:21:21
+    --> tests/fail/delete_statement_does_not_support_returning_methods_on_sqlite.rs:23:21
      |
   LL |         .get_result(&mut connection);
      |          ---------- ^^^^^^^^^^^^^^^ unsatisfied trait bound

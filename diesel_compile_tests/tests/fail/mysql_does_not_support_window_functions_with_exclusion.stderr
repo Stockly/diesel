@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:22:10
+   |
+LL |         .load::<i64>(&mut connection)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `ExcludeGroup` is no valid SQL fragment for the `Mysql` backend
     --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:22:22
      |
@@ -45,6 +53,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
           = note: this error originates in the macro `simple_frame_expr_with_bound` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:34:14
+   |
+LL |             .load::<i64>(&mut connection)
+   |              ^^^^
 
 error[E0277]: `ExcludeCurrentRow` is no valid SQL fragment for the `Mysql` backend
     --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:34:26
@@ -94,6 +108,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
   
           = note: this error originates in the macro `simple_frame_expr_with_bound` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:45:10
+   |
+LL |         .load::<i64>(&mut connection)
+   |          ^^^^
+
 error[E0277]: `ExcludeTies` is no valid SQL fragment for the `Mysql` backend
     --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:45:22
      |
@@ -141,6 +161,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
           = note: this error originates in the macro `simple_frame_expr_with_bound` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:57:14
+   |
+LL |             .load::<i64>(&mut connection)
+   |              ^^^^
 
 error[E0277]: `ExcludeNoOthers` is no valid SQL fragment for the `Mysql` backend
     --> tests/fail/mysql_does_not_support_window_functions_with_exclusion.rs:57:26

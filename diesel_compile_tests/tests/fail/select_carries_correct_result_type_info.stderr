@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/select_carries_correct_result_type_info.rs:19:27
+   |
+LL |     let ids = select_name.load::<i32>(&mut connection);
+   |                           ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: cannot deserialize a value of the database type `diesel::sql_types::Text` as `i32`
     --> tests/fail/select_carries_correct_result_type_info.rs:19:39
      |
@@ -36,6 +44,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/select_carries_correct_result_type_info.rs:21:27
+   |
+LL |     let names = select_id.load::<String>(&mut connection);
+   |                           ^^^^
+
 error[E0277]: cannot deserialize a value of the database type `diesel::sql_types::Integer` as `std::string::String`
     --> tests/fail/select_carries_correct_result_type_info.rs:21:42
      |

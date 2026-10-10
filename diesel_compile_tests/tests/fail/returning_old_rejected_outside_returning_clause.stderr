@@ -18,6 +18,14 @@ LL | |     Self: AppearsOnTable<ReturningQuerySource<UpdateStmt, C::Table>>,
     = note: required for `SelectStatement<FromClause<table>>` to implement `SelectDsl<diesel::pg::returning::old_impl::Old<columns::name>>`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/returning_old_rejected_outside_returning_clause.rs:23:10
+   |
+LL |         .load::<String>(&mut connection)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: cannot select `diesel::pg::returning::old_impl::Old<columns::name>` from `users::table`
     --> tests/fail/returning_old_rejected_outside_returning_clause.rs:23:25
      |
@@ -107,6 +115,12 @@ LL | | }
    = note: required for `SelectStatement<FromClause<table>>` to implement `SelectDsl<NullableExpression<Old<name>>>`
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/returning_old_rejected_outside_returning_clause.rs:33:10
+   |
+LL |         .load::<Option<String>>(&mut connection)
+   |          ^^^^
 
 error[E0277]: cannot select `diesel::pg::returning::old_impl::Old<columns::name>` from `users::table`
     --> tests/fail/returning_old_rejected_outside_returning_clause.rs:33:33

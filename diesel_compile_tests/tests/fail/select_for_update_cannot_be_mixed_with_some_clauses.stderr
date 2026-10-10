@@ -340,7 +340,7 @@ error[E0277]: the trait bound `BoxedSelectStatement<'_, _, _, _>: LockingDsl<_>`
  LL |     users.into_boxed().for_update();
     |                        ^^^^^^^^^^ unsatisfied trait bound
     |
-    = help: the trait `LockingDsl<diesel::query_builder::locking_clause::ForUpdate>` is not implemented for `BoxedSelectStatement<'_, (Integer,), _, _>`
+    = help: the trait `LockingDsl<diesel::query_builder::locking_clause::ForUpdate>` is not implemented for `BoxedSelectStatement<'_, NotSelectable, _, _>`
     = note: a `LOCKING` clause is incompatible with various other clauses like a `DISTINCT` clause
 help: the trait `LockingDsl<Lock>` is implemented for `Alias<S>`
    --> DIESEL/diesel/diesel/src/query_source/aliasing/dsl_impls.rs
@@ -366,9 +366,9 @@ help: the trait `LockingDsl<Lock>` is conditionally implemented for `SelectState
    --> DIESEL/diesel/diesel/src/query_builder/select_statement/dsl_impls.rs
     |
 LL |   impl<F, S, W, O, LOf, Lock> LockingDsl<Lock>
-    |   ^    -  - unsatisfied requirement introduced here: `diesel::query_builder::select_clause::DefaultSelectClause<diesel::internal::table_macro::FromClause<diesel::internal::table_macro::BoxedSelectStatement<'_, (diesel::sql_types::Integer,), diesel::internal::table_macro::FromClause<users::table>, _>>>: Sized`
+    |   ^    -  - unsatisfied requirement introduced here: `diesel::query_builder::select_clause::DefaultSelectClause<diesel::internal::table_macro::FromClause<diesel::internal::table_macro::BoxedSelectStatement<'_, NotSelectable, diesel::internal::table_macro::FromClause<users::table>, _>>>: Sized`
     |   |    |
-    |  _|    unsatisfied requirement introduced here: `diesel::internal::table_macro::FromClause<diesel::internal::table_macro::BoxedSelectStatement<'_, (diesel::sql_types::Integer,), diesel::internal::table_macro::FromClause<users::table>, _>>: Sized`
+    |  _|    unsatisfied requirement introduced here: `diesel::internal::table_macro::FromClause<diesel::internal::table_macro::BoxedSelectStatement<'_, NotSelectable, diesel::internal::table_macro::FromClause<users::table>, _>>: Sized`
     | |
 LL | |     for SelectStatement<F, S, NoDistinctClause, W, O, LOf>
     | |__________________________________________________________^
@@ -380,7 +380,7 @@ error[E0277]: the trait bound `BoxedSelectStatement<'_, _, _, _>: QueryRelation`
  LL |     users.into_boxed().for_update();
     |                        ^^^^^^^^^^ unsatisfied trait bound
     |
-    = help: the trait `LockingDsl<diesel::query_builder::locking_clause::ForUpdate>` is not implemented for `BoxedSelectStatement<'_, (Integer,), _, _>`
+    = help: the trait `LockingDsl<diesel::query_builder::locking_clause::ForUpdate>` is not implemented for `BoxedSelectStatement<'_, NotSelectable, _, _>`
 help: the trait `LockingDsl<Lock>` is implemented for `Alias<S>`
    --> DIESEL/diesel/diesel/src/query_source/aliasing/dsl_impls.rs
     |

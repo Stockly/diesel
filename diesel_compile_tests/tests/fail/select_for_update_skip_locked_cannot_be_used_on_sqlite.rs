@@ -12,6 +12,7 @@ table! {
 fn main() {
     let mut conn = SqliteConnection::establish("").unwrap();
     users::table
+        .select(users::id)
         .for_update()
         .skip_locked()
         .load(&mut conn)
