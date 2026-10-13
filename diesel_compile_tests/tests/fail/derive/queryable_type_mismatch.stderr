@@ -1,10 +1,24 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:59:10
+   |
+LL |         .load::<User>(conn);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:62:10
+   |
+LL |         .load::<UserWithToFewFields>(conn);
+   |          ^^^^
+
 error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not satisfied
-    --> tests/fail/derive/queryable_type_mismatch.rs:58:54
+    --> tests/fail/derive/queryable_type_mismatch.rs:62:38
      |
-  LL |     let _ = users::table.load::<UserWithToFewFields>(conn);
-     |                          ----                        ^^^^ unsatisfied trait bound
-     |                          |
-     |                          required by a bound introduced by this call
+  LL |         .load::<UserWithToFewFields>(conn);
+     |          ----                        ^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<UserWithToFewFields, _>` is not implemented for `(Integer, Text, Nullable<Text>)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -21,7 +35,7 @@ error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not 
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5)>` implements `CompatibleType<Option<__T>, __DB>`
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, UserWithToFewFields>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, UserWithToFewFields>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -32,13 +46,19 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:67:10
+   |
+LL |         .load::<UserWithToManyFields>(conn);
+   |          ^^^^
+
 error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not satisfied
-    --> tests/fail/derive/queryable_type_mismatch.rs:61:55
+    --> tests/fail/derive/queryable_type_mismatch.rs:67:39
      |
-  LL |     let _ = users::table.load::<UserWithToManyFields>(conn);
-     |                          ----                         ^^^^ unsatisfied trait bound
-     |                          |
-     |                          required by a bound introduced by this call
+  LL |         .load::<UserWithToManyFields>(conn);
+     |          ----                         ^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<UserWithToManyFields, _>` is not implemented for `(Integer, Text, Nullable<Text>)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -55,7 +75,7 @@ error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not 
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5)>` implements `CompatibleType<Option<__T>, __DB>`
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, UserWithToManyFields>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, UserWithToManyFields>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -66,13 +86,19 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:72:10
+   |
+LL |         .load::<UserWrongOrder>(conn);
+   |          ^^^^
+
 error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not satisfied
-    --> tests/fail/derive/queryable_type_mismatch.rs:64:49
+    --> tests/fail/derive/queryable_type_mismatch.rs:72:33
      |
-  LL |     let _ = users::table.load::<UserWrongOrder>(conn);
-     |                          ----                   ^^^^ unsatisfied trait bound
-     |                          |
-     |                          required by a bound introduced by this call
+  LL |         .load::<UserWrongOrder>(conn);
+     |          ----                   ^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<UserWrongOrder, _>` is not implemented for `(Integer, Text, Nullable<Text>)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -89,7 +115,7 @@ error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not 
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5)>` implements `CompatibleType<Option<__T>, __DB>`
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, UserWrongOrder>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, UserWrongOrder>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -100,13 +126,19 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:77:10
+   |
+LL |         .load::<UserTypeMismatch>(conn);
+   |          ^^^^
+
 error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not satisfied
-    --> tests/fail/derive/queryable_type_mismatch.rs:67:51
+    --> tests/fail/derive/queryable_type_mismatch.rs:77:35
      |
-  LL |     let _ = users::table.load::<UserTypeMismatch>(conn);
-     |                          ----                     ^^^^ unsatisfied trait bound
-     |                          |
-     |                          required by a bound introduced by this call
+  LL |         .load::<UserTypeMismatch>(conn);
+     |          ----                     ^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<UserTypeMismatch, _>` is not implemented for `(Integer, Text, Nullable<Text>)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -123,7 +155,7 @@ error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not 
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5)>` implements `CompatibleType<Option<__T>, __DB>`
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, UserTypeMismatch>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, UserTypeMismatch>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |
@@ -134,13 +166,19 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/derive/queryable_type_mismatch.rs:82:10
+   |
+LL |         .load::<UserNullableTypeMismatch>(conn);
+   |          ^^^^
+
 error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not satisfied
-    --> tests/fail/derive/queryable_type_mismatch.rs:70:59
+    --> tests/fail/derive/queryable_type_mismatch.rs:82:43
      |
-  LL |     let _ = users::table.load::<UserNullableTypeMismatch>(conn);
-     |                          ----                             ^^^^ unsatisfied trait bound
-     |                          |
-     |                          required by a bound introduced by this call
+  LL |         .load::<UserNullableTypeMismatch>(conn);
+     |          ----                             ^^^^ unsatisfied trait bound
+     |          |
+     |          required by a bound introduced by this call
      |
      = help: the trait `diesel::query_dsl::load_dsl::private::CompatibleType<UserNullableTypeMismatch, _>` is not implemented for `(Integer, Text, Nullable<Text>)`
      = note: this is a mismatch between what your query returns and what your type expects the query to return
@@ -157,7 +195,7 @@ error[E0277]: the trait bound `(Integer, Text, _): CompatibleType<_, _>` is not 
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5)>` implements `CompatibleType<Option<__T>, __DB>`
                `diesel::sql_types::Nullable<(ST, ST1, ST2, ST3, ST4, ST5, ST6)>` implements `CompatibleType<Option<__T>, __DB>`
              and N others
-     = note: required for `users::table` to implement `LoadQuery<'_, _, UserNullableTypeMismatch>`
+     = note: required for `SelectStatement<FromClause<table>, _>` to implement `LoadQuery<'_, _, UserNullableTypeMismatch>`
 note: required by a bound in `load`
     --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
      |

@@ -25,7 +25,11 @@ fn main() {
     let mut conn = PgConnection::establish("").unwrap();
 
     // Sanity check, valid query
-    insert_into(posts).values(users).execute(&mut conn).unwrap();
+    insert_into(posts)
+        .values(users.select((id, name, hair_color)))
+        .into_columns((user_id, title, body))
+        .execute(&mut conn)
+        .unwrap();
 
     insert_into(posts).values(vec![users, users]);
     //~^ ERROR: the trait bound `table: UndecoratedInsertRecord<table>` is not satisfied

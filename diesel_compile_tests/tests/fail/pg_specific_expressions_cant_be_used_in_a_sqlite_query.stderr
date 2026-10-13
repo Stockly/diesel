@@ -6,6 +6,12 @@ LL |         .filter(name.eq(any(Vec::<String>::new())))
    |
    = note: `#[warn(deprecated)]` on by default
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:32:10
+   |
+LL |         .load::<i32>(&mut connection);
+   |          ^^^^
+
 error[E0277]: `Any<Bound<Array<Text>, Vec<String>>>` is no valid SQL fragment for the `Sqlite` backend
     --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:32:22
      |
@@ -39,6 +45,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:37:10
+   |
+LL |         .load::<i32>(&mut connection);
+   |          ^^^^
+
 error[E0277]: `IsNotDistinctFrom<name, Bound<Text, &str>>` is no valid SQL fragment for the `Sqlite` backend
     --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:37:22
      |
@@ -77,6 +89,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::load`
   
           = note: this error originates in the macro `$crate::__diesel_operator_body` which comes from the expansion of the macro `__diesel_infix_operator` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:42:10
+   |
+LL |         .load::<i32>(&mut connection);
+   |          ^^^^
 
 error[E0277]: `AtTimeZone<now, Bound<Text, &str>>` is no valid SQL fragment for the `Sqlite` backend
     --> tests/fail/pg_specific_expressions_cant_be_used_in_a_sqlite_query.rs:42:22

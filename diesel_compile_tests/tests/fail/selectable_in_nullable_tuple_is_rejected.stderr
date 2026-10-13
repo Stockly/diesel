@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/selectable_in_nullable_tuple_is_rejected.rs:41:19
+   |
+LL |     let _ = query.get_result::<(String, Option<Post>)>(&mut conn).unwrap();
+   |                   ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: the trait bound `(Text, Nullable<(_,)>): CompatibleType<_, _>` is not satisfied
     --> tests/fail/selectable_in_nullable_tuple_is_rejected.rs:41:56
      |

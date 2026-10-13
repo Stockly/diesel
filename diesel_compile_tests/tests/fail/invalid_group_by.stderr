@@ -127,7 +127,7 @@ help: the following other types implement trait `diesel::expression::IsContained
  LL | |         id -> Integer,
    | |         ^^ `users::columns::id`
  LL | |         name -> VarChar,
-   | |____________^ `users::columns::name`
+   | |____________^ `name`
 ...
 LL |   allow_columns_to_appear_in_same_group_by_clause!(users::id, posts::id);
    |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `posts::columns::id`

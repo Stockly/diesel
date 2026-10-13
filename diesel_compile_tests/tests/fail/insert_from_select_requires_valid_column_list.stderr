@@ -1,29 +1,5 @@
-error[E0271]: type mismatch resolving `<SelectStatement<_, _> as Query>::SqlType == (_, Text, _)`
-    --> tests/fail/insert_from_select_requires_valid_column_list.rs:57:18
-     |
-  LL |         .execute(&mut conn)
-     |          ------- ^^^^^^^^^ expected a tuple with 3 elements, found one with 2 elements
-     |          |
-     |          required by a bound introduced by this call
-     |
-     = note: expected tuple `(Integer, Text, Nullable<Text>)`
-                found tuple `(diesel::sql_types::Text, diesel::sql_types::Nullable<diesel::sql_types::Text>)`
-     = note: required for `InsertFromSelect<SelectStatement<_, _>, _>` to implement `QueryFragment<_>`
-     = note: 1 redundant requirement hidden
-     = note: required for `InsertStatement<table, InsertFromSelect<_, _>>` to implement `QueryFragment<_>`
-     = note: required for `InsertStatement<table, InsertFromSelect<_, _>>` to implement `ExecuteDsl<_, _>`
-note: required by a bound in `diesel::RunQueryDsl::execute`
-    --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-     |
-LL |     fn execute(self, conn: &mut Conn) -> QueryResult<usize>
-     |        ------- required by a bound in this associated function
-...
-LL |         Self: methods::ExecuteDsl<Conn>,
-     |               ^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::execute`
-  
-     
 error[E0271]: type mismatch resolving `<post_id as ColumnList>::Table == table`
-   --> tests/fail/insert_from_select_requires_valid_column_list.rs:65:23
+   --> tests/fail/insert_from_select_requires_valid_column_list.rs:54:23
     |
  LL |         .into_columns(comments::post_id);
     |          ------------ ^^^^^^^^^^^^^^^^^ expected `posts::table`, found `comments::table`
@@ -54,7 +30,7 @@ LL |         C2: ColumnList<Table = T> + Expression,
     = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0271]: type mismatch resolving `<title as Expression>::SqlType == Integer`
-  --> tests/fail/insert_from_select_requires_valid_column_list.rs:69:5
+  --> tests/fail/insert_from_select_requires_valid_column_list.rs:58:5
    |
 LL |     users.select(id).insert_into(posts).into_columns(title);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch resolving `<title as Expression>::SqlType == Integer`
@@ -66,7 +42,7 @@ LL |         title -> Text,
    |                  ^^^^
 
 error[E0277]: the trait bound `(post_id, title): ColumnList` is not satisfied
-   --> tests/fail/insert_from_select_requires_valid_column_list.rs:76:23
+   --> tests/fail/insert_from_select_requires_valid_column_list.rs:65:23
     |
  LL |         .into_columns((comments::post_id, title));
     |          ------------ ^^^^^^^^^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
@@ -88,7 +64,7 @@ LL |         C2: ColumnList<Table = T> + Expression,
  
     
 error[E0271]: type mismatch resolving `<post_id as ColumnList>::Table == table`
-   --> tests/fail/insert_from_select_requires_valid_column_list.rs:83:23
+   --> tests/fail/insert_from_select_requires_valid_column_list.rs:72:23
     |
  LL |         .into_columns((comments::post_id, comments::body));
     |          ------------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `posts::table`, found `comments::table`
@@ -120,7 +96,7 @@ LL |         C2: ColumnList<Table = T> + Expression,
     = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0271]: type mismatch resolving `<body as ColumnList>::Table == table`
-   --> tests/fail/insert_from_select_requires_valid_column_list.rs:83:23
+   --> tests/fail/insert_from_select_requires_valid_column_list.rs:72:23
     |
  LL |         .into_columns((comments::post_id, comments::body));
     |          ------------ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `posts::table`, found `comments::table`
@@ -152,7 +128,7 @@ LL |         C2: ColumnList<Table = T> + Expression,
     = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0271]: type mismatch resolving `<(user_id, body) as Expression>::SqlType == (Integer, Text)`
-  --> tests/fail/insert_from_select_requires_valid_column_list.rs:88:5
+  --> tests/fail/insert_from_select_requires_valid_column_list.rs:77:5
    |
 LL | /     users
 LL | |
@@ -165,7 +141,7 @@ LL | |         .into_columns((user_id, body));
               found tuple `(Integer, diesel::sql_types::Nullable<Text>)`
 
 error[E0271]: type mismatch resolving `<(title, body) as Expression>::SqlType == (Integer, Text)`
-  --> tests/fail/insert_from_select_requires_valid_column_list.rs:95:5
+  --> tests/fail/insert_from_select_requires_valid_column_list.rs:84:5
    |
 LL | /     users
 LL | |

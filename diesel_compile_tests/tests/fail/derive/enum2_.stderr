@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/derive/enum2_.rs:37:10
+   |
+LL |         .get_result::<Test2>(conn)
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: the trait bound `diesel::sql_types::Integer: EnumSqlType<false, _>` is not satisfied
     --> tests/fail/derive/enum2_.rs:37:30
      |
@@ -48,6 +56,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/derive/enum2_.rs:42:10
+   |
+LL |         .get_result::<Test2>(conn)
+   |          ^^^^^^^^^^
+
 error[E0277]: cannot deserialize a value of the database type `diesel::sql_types::Binary` as `Test2`
     --> tests/fail/derive/enum2_.rs:42:30
      |
@@ -90,6 +104,18 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
   
           = note: this error originates in the derive macro `Enum` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/derive/enum2_.rs:47:63
+   |
+LL |     let _r = diesel::select(diesel::dsl::sql::<SqlEnum>("_")).get_result::<Test4>(pg_conn);
+   |                                                               ^^^^^^^^^^
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/derive/enum2_.rs:49:62
+   |
+LL |     let r = diesel::select(diesel::dsl::sql::<SqlEnum>("_")).get_result::<Test4>(conn);
+   |                                                              ^^^^^^^^^^
 
 error[E0277]: `diesel::internal::derives::sql_type::EnumTypeMapping` is no valid strategy to map an enum for backend `Sqlite`
     --> tests/fail/derive/enum2_.rs:49:82

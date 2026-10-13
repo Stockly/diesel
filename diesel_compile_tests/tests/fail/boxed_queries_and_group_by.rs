@@ -51,8 +51,12 @@ fn main() {
     q = q.limit(42);
     q = q.offset(42);
 
-    // cannot box a query with default select clause + a group by clause
-    users::table.group_by(users::name).into_boxed();
+    // cannot box a query whose select clause (here every column, like upstream's default)
+    // was not checked against the group by clause
+    users::table
+        .select((users::id, users::name))
+        .group_by(users::name)
+        .into_boxed();
     //~^ ERROR: cannot box `SelectStatement<_, _, _, _, _, _, _>` for backend `_`
 
     users::table
@@ -87,6 +91,7 @@ fn main() {
 
     // you cannot call group by after boxing
     users::table
+        .select((users::id, users::name))
         .into_boxed()
         .group_by(users::id)
         //~^ ERROR: the trait bound `BoxedSelectStatement<'_, _, _, _>: GroupByDsl<_>` is not satisfied

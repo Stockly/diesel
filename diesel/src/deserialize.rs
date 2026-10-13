@@ -67,7 +67,7 @@ pub type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.order_by(id).first(connection)?;
+/// let first_user = users.select((id, name)).order_by(id).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "Sean".into(),
@@ -225,7 +225,7 @@ pub type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.first(connection)?;
+/// let first_user = users.select((id, name)).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "sean".into(),
@@ -243,7 +243,7 @@ pub type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 /// # include!("doctest_setup.rs");
 /// #
 /// use diesel::deserialize::{self, Queryable};
-/// use schema::users;
+/// use diesel::sql_types::{Integer, Text};
 ///
 /// # /*
 /// type DB = diesel::sqlite::Sqlite;
@@ -254,7 +254,7 @@ pub type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 ///     name: String,
 /// }
 ///
-/// impl Queryable<users::SqlType, DB> for User {
+/// impl Queryable<(Integer, Text), DB> for User {
 ///     type Row = (i32, String);
 ///
 ///     fn build(row: Self::Row) -> deserialize::Result<Self> {
@@ -272,7 +272,7 @@ pub type Result<T> = result::Result<T, Box<dyn Error + Send + Sync>>;
 /// # fn run_test() -> QueryResult<()> {
 /// #     use schema::users::dsl::*;
 /// #     let connection = &mut establish_connection();
-/// let first_user = users.first(connection)?;
+/// let first_user = users.select((id, name)).first(connection)?;
 /// let expected = User {
 ///     id: 1,
 ///     name: "sean".into(),

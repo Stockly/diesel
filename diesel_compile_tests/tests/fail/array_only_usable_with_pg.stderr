@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+ --> tests/fail/array_only_usable_with_pg.rs:8:25
+  |
+LL |     select(array((1,))).get_result::<Vec<i32>>(&mut connection);
+  |                         ^^^^^^^^^^
+  |
+  = note: `#[warn(deprecated)]` on by default
+
 error[E0271]: type mismatch resolving `<SqliteConnection as Connection>::Backend == Pg`
     --> tests/fail/array_only_usable_with_pg.rs:8:48
      |
@@ -17,6 +25,12 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/array_only_usable_with_pg.rs:12:25
+   |
+LL |     select(array((1,))).get_result::<Vec<i32>>(&mut connection);
+   |                         ^^^^^^^^^^
+
 error[E0271]: type mismatch resolving `<MysqlLikeConnection<Mysql> as Connection>::Backend == Pg`
     --> tests/fail/array_only_usable_with_pg.rs:12:48
      |

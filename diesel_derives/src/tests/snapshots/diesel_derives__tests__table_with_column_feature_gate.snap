@@ -6,12 +6,6 @@ info:
 ---
 #[allow(unused_imports, dead_code, unreachable_pub, unused_qualifications)]
 pub mod users {
-    const _: () = {
-        assert!(
-            3u16 <= diesel::internal::table_macro::MAX_COLUMN_COUNT,
-            "`users` contains 3 columns, which is more than the supported maximum number of columns\nTry enabling a crate level feature to support more columns"
-        );
-    };
     use ::diesel;
     pub use self::columns::*;
     use diesel::sql_types::*;
@@ -30,13 +24,8 @@ pub mod users {
         pub use super::table as users;
     }
     #[allow(non_upper_case_globals, dead_code)]
-    #[doc = concat!("A tuple of all of the columns on this", "table")]
-    pub const all_columns: AllColumns = (
-        id,
-        name,
-        #[cfg(feature = "chrono")]
-        created_at,
-    );
+    #[doc = concat!("The default selection of this ", "table")]
+    pub const all_columns: AllColumns = self::diesel::query_builder::SelectClauseNotSet;
     #[allow(non_camel_case_types)]
     #[derive(
         Debug,
@@ -66,14 +55,9 @@ pub mod users {
             star
         }
     }
-    #[cfg(all(not(feature = "chrono")))]
-    #[allow(non_camel_case_types, dead_code)]
-    #[doc = concat!("The tuple of all column structs on this ", "table")]
-    pub type AllColumns = (id, name);
-    #[cfg(all(feature = "chrono"))]
-    #[allow(non_camel_case_types, dead_code)]
-    #[doc = concat!("The tuple of all column structs on this ", "table")]
-    pub type AllColumns = (id, name, created_at);
+    #[allow(dead_code)]
+    #[doc = concat!("The default selection of this ", "table")]
+    pub type AllColumns = self::diesel::query_builder::SelectClauseNotSet;
     #[doc = concat!("The SQL type of all of the columns on this ", "table")]
     pub type SqlType = <AllColumns as diesel::Expression>::SqlType;
     #[doc = concat!("Helper type for representing a boxed query from this ", "table")]

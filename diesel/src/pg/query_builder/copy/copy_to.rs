@@ -555,7 +555,7 @@ where
 ///
 /// # fn run_test() -> QueryResult<()> {
 /// # let connection = &mut establish_connection();
-/// let out = diesel::copy_to(users::table)
+/// let out = diesel::copy_to((users::id, users::name))
 ///     .load::<User, _>(connection)?
 ///     .collect::<Result<Vec<_>, _>>()?;
 ///
@@ -587,7 +587,7 @@ where
 /// use std::io::Read;
 /// # let connection = &mut establish_connection();
 ///
-/// let mut copy = diesel::copy_to(users::table)
+/// let mut copy = diesel::copy_to((users::id, users::name))
 ///     .with_format(CopyFormat::Csv)
 ///     .load_raw(connection)?;
 ///

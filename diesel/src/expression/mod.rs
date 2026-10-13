@@ -977,10 +977,14 @@ use crate::query_builder::{QueryFragment, QueryId};
 ///     }
 /// }
 ///
-/// let user_one = users::table.filter(find_user(Search::Id(1))).first(conn)?;
+/// let user_one = users::table
+///     .select((users::id, users::name))
+///     .filter(find_user(Search::Id(1)))
+///     .first(conn)?;
 /// assert_eq!((1, String::from("Sean")), user_one);
 ///
 /// let tess = users::table
+///     .select((users::id, users::name))
 ///     .filter(find_user(Search::Name("Tess".into())))
 ///     .first(conn)?;
 /// assert_eq!((2, String::from("Tess")), tess);

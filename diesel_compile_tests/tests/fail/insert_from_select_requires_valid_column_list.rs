@@ -31,9 +31,6 @@ fn main() {
     use self::users::dsl::*;
     let mut conn = PgConnection::establish("").unwrap();
 
-    // Sanity check, valid query with no column list
-    users.insert_into(posts).execute(&mut conn).unwrap();
-
     // Sanity check, valid query with single column
     users
         .select(id)
@@ -48,14 +45,6 @@ fn main() {
         .insert_into(posts)
         .into_columns((title, body))
         .execute(&mut conn)
-        .unwrap();
-
-    // No column list, mismatched types
-    users
-        .select((name, hair_color))
-        .insert_into(posts)
-        .execute(&mut conn)
-        //~^ ERROR: type mismatch resolving `<SelectStatement<_, _> as Query>::SqlType == (_, Text, _)`
         .unwrap();
 
     // Single column, wrong table

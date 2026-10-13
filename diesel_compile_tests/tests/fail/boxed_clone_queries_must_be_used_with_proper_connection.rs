@@ -12,6 +12,7 @@ table! {
 fn main() {
     let mut connection = SqliteConnection::establish("").unwrap();
     users::table
+        .select((users::id,))
         .into_boxed_clone::<Pg>()
         .load::<(i32,)>(&mut connection);
     //~^ ERROR: type mismatch resolving `<SqliteConnection as Connection>::Backend == Pg`

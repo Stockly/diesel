@@ -26,7 +26,7 @@ LL | |     <Self as AsQuery>::SqlType: TypedExpressionType,
     = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0277]: the trait bound `table: DistinctOnDsl<(name, name)>` is not satisfied
-   --> tests/fail/distinct_on_allows_only_fields_of_table.rs:31:10
+   --> tests/fail/distinct_on_allows_only_fields_of_table.rs:32:10
     |
  LL |         .distinct_on((posts::name, users::name))
     |          ^^^^^^^^^^^ unsatisfied trait bound
@@ -52,4 +52,12 @@ LL | |     <Self as AsQuery>::SqlType: TypedExpressionType,
     | |____________________________________________________^
  
         = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/distinct_on_allows_only_fields_of_table.rs:35:10
+   |
+LL |         .get_result(&mut connection);
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
 For more information about this error, try `rustc --explain E0277`.

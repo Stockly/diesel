@@ -68,8 +68,12 @@ pub(super) use self::result::PgResult;
 /// #     let connection = &mut establish_connection();
 /// use diesel::connection::DefaultLoadingMode;
 ///
-/// let iter1 = users::table.load_iter::<(i32, String), DefaultLoadingMode>(connection)?;
-/// let iter2 = users::table.load_iter::<(i32, String), DefaultLoadingMode>(connection)?;
+/// let iter1 = users::table
+///     .select((users::id, users::name))
+///     .load_iter::<(i32, String), DefaultLoadingMode>(connection)?;
+/// let iter2 = users::table
+///     .select((users::id, users::name))
+///     .load_iter::<(i32, String), DefaultLoadingMode>(connection)?;
 ///
 /// for r in iter1 {
 ///     let (id, name) = r?;
@@ -104,9 +108,13 @@ pub(super) use self::result::PgResult;
 /// #     let connection = &mut establish_connection();
 /// use diesel::pg::PgRowByRowLoadingMode;
 ///
-/// let iter1 = users::table.load_iter::<(i32, String), PgRowByRowLoadingMode>(connection)?;
+/// let iter1 = users::table
+///     .select((users::id, users::name))
+///     .load_iter::<(i32, String), PgRowByRowLoadingMode>(connection)?;
 /// // creating a second iterator generates an compiler error
-/// let iter2 = users::table.load_iter::<(i32, String), PgRowByRowLoadingMode>(connection)?;
+/// let iter2 = users::table
+///     .select((users::id, users::name))
+///     .load_iter::<(i32, String), PgRowByRowLoadingMode>(connection)?;
 ///
 /// for r in iter1 {
 ///     let (id, name) = r?;

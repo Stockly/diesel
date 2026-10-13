@@ -475,7 +475,7 @@ impl<T: Query> AsQuery for T {
 /// assert_eq!(sql, "SELECT COUNT(*) FROM `users` -- binds: []");
 /// # }
 ///
-/// let query = users.find(1);
+/// let query = users.find(1).select((id, name));
 /// let debug = debug_query::<DB, _>(&query);
 /// # if cfg!(feature = "postgres") {
 /// #     assert_eq!(debug.to_string(), "SELECT \"users\".\"id\", \"users\".\"name\" \

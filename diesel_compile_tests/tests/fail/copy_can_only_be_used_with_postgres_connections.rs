@@ -30,7 +30,9 @@ fn main() {
         .from_insertable(vec![NewUser { name: "John" }])
         .execute(conn)
         .unwrap();
-    diesel::copy_to(users::table).load::<User, _>(conn).unwrap();
+    diesel::copy_to((users::id, users::name))
+        .load::<User, _>(conn)
+        .unwrap();
 
     let manager = ConnectionManager::<PgConnection>::new("");
     let pool = Pool::builder().max_size(2).build(manager).unwrap();
@@ -40,7 +42,7 @@ fn main() {
         .from_insertable(vec![NewUser { name: "John" }])
         .execute(&mut conn)
         .unwrap();
-    diesel::copy_to(users::table)
+    diesel::copy_to((users::id, users::name))
         .load::<User, _>(&mut conn)
         .unwrap();
 
@@ -53,9 +55,11 @@ fn main() {
         //~^ ERROR: type mismatch resolving `<MysqlLikeConnection<Mysql> as Connection>::Backend == Pg`
         //~| ERROR: the trait bound `CopyFromQuery<table, _>: ExecuteCopyFromDsl<_>` is not satisfied
         .unwrap();
-    diesel::copy_to(users::table).load::<User, _>(conn).unwrap();
-    //~^ ERROR: the trait bound `MysqlLikeConnection<Mysql>: ExecuteCopyToConnection` is not satisfied
-    //~| ERROR: the trait bound `MysqlLikeConnection<Mysql>: ExecuteCopyToConnection` is not satisfied
+    diesel::copy_to((users::id, users::name))
+        //~^ ERROR: the trait bound `MysqlLikeConnection<Mysql>: ExecuteCopyToConnection` is not satisfied
+        .load::<User, _>(conn)
+        //~^ ERROR: the trait bound `MysqlLikeConnection<Mysql>: ExecuteCopyToConnection` is not satisfied
+        .unwrap();
 
     let conn = &mut SqliteConnection::establish("_").unwrap();
 
@@ -66,7 +70,9 @@ fn main() {
         //~^ ERROR: type mismatch resolving `<SqliteConnection as Connection>::Backend == Pg`
         //~| ERROR: the trait bound `CopyFromQuery<table, _>: ExecuteCopyFromDsl<_>` is not satisfied
         .unwrap();
-    diesel::copy_to(users::table).load::<User, _>(conn).unwrap();
-    //~^ ERROR: the trait bound `SqliteConnection: ExecuteCopyToConnection` is not satisfied
-    //~| ERROR: the trait bound `SqliteConnection: ExecuteCopyToConnection` is not satisfied
+    diesel::copy_to((users::id, users::name))
+        //~^ ERROR: the trait bound `SqliteConnection: ExecuteCopyToConnection` is not satisfied
+        .load::<User, _>(conn)
+        //~^ ERROR: the trait bound `SqliteConnection: ExecuteCopyToConnection` is not satisfied
+        .unwrap();
 }

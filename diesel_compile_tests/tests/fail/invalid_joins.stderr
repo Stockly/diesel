@@ -1,37 +1,3 @@
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:41:37
-    |
- LL |     let _ = users::table.inner_join(posts::table.inner_join(users::table));
-    |                          ---------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
-    |                          |
-    |                          required by a bound introduced by this call
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, _, Inner>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), _)` to implement `AppearsOnTable<Join<table, _, Inner>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, Inner>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, Inner>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<SelectStatement<_>, Inner>`
-note: required by a bound in `inner_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn inner_join<Rhs>(self, rhs: Rhs) -> InnerJoin<Self, Rhs>
-    |        ---------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::Inner>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::inner_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error[E0271]: type mismatch resolving `<Join<table, _, Inner> as AppearsInFromClause<table>>::Count == Once`
   --> tests/fail/invalid_joins.rs:41:26
    |
@@ -51,42 +17,8 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:47:21
-    |
- LL |         .inner_join(posts::table.inner_join(users::table.on(posts::user_id.eq(users::id))));
-    |          ---------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
-    |          |
-    |          required by a bound introduced by this call
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, _, Inner>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), _)` to implement `AppearsOnTable<Join<table, _, Inner>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, Inner>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, Inner>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<SelectStatement<_>, Inner>`
-note: required by a bound in `inner_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn inner_join<Rhs>(self, rhs: Rhs) -> InnerJoin<Self, Rhs>
-    |        ---------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::Inner>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::inner_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error[E0271]: type mismatch resolving `<Join<table, _, Inner> as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/invalid_joins.rs:47:10
+  --> tests/fail/invalid_joins.rs:46:10
    |
 LL |         .inner_join(posts::table.inner_join(users::table.on(posts::user_id.eq(users::id))));
    |          ^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
@@ -104,45 +36,8 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:54:9
-    |
- LL |       let _ = users::table.inner_join(
-    |                            ---------- required by a bound introduced by this call
- LL |
- LL | /         posts::table
- LL | |             .on(users::id.eq(posts::user_id))
- LL | |             .inner_join(users::table),
-    | |_____________________________________^ expected `Once`, found `MoreThanOnce`
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, _, Inner>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), _)` to implement `AppearsOnTable<Join<table, _, Inner>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, Inner>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, Inner>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<OnClauseWrapper<_, _>, Inner>`
-note: required by a bound in `inner_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn inner_join<Rhs>(self, rhs: Rhs) -> InnerJoin<Self, Rhs>
-    |        ---------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::Inner>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::inner_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error[E0271]: type mismatch resolving `<Join<table, _, Inner> as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/invalid_joins.rs:52:26
+  --> tests/fail/invalid_joins.rs:50:26
    |
 LL |     let _ = users::table.inner_join(
    |                          ^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
@@ -160,11 +55,57 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-  --> tests/fail/invalid_joins.rs:63:10
+error[E0277]: the trait bound `(Once, Once): Pick<JoinOn<_, _>, _>` is not satisfied
+  --> tests/fail/invalid_joins.rs:61:10
    |
-LL |         .inner_join(posts::table.inner_join(comments::table));
-   |          ^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
+LL |         .select(comments::id);
+   |          ^^^^^^ unsatisfied trait bound
+   |
+   = help: the trait `diesel::internal::table_macro::Pick<diesel::internal::table_macro::JoinOn<diesel::internal::table_macro::Join<users::table, comments::table, diesel::internal::table_macro::Inner>, diesel::expression::grouped::Grouped<diesel::expression::operators::Eq<diesel::internal::table_macro::NullableExpression<comments::columns::user_id>, diesel::internal::table_macro::NullableExpression<users::columns::id>>>>, diesel::internal::table_macro::SelectStatement<diesel::internal::table_macro::FromClause<diesel::internal::table_macro::JoinOn<diesel::internal::table_macro::Join<posts::table, comments::table, diesel::internal::table_macro::Inner>, diesel::expression::grouped::Grouped<diesel::expression::operators::Eq<diesel::internal::table_macro::NullableExpression<comments::columns::post_id>, diesel::internal::table_macro::NullableExpression<posts::columns::id>>>>>>>` is not implemented for `(diesel::query_source::Once, diesel::query_source::Once)`
+   = help: the following other types implement trait `diesel::internal::table_macro::Pick<Left, Right>`:
+             (MoreThanOnce, OtherCount)
+             (diesel::query_source::Never, MoreThanOnce)
+             (diesel::query_source::Never, diesel::query_source::Never)
+             (diesel::query_source::Never, diesel::query_source::Once)
+             (diesel::query_source::Once, MoreThanOnce)
+             (diesel::query_source::Once, diesel::query_source::Never)
+note: required for `comments::columns::id` to implement `SelectableExpression<Join<JoinOn<_, _>, _, Inner>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: 1 redundant requirement hidden
+   = note: required for `comments::columns::id` to implement `SelectableExpression<JoinOn<Join<_, _, Inner>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<comments::columns::id>`
+
+      = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<JoinOn<_, _> as AppearsInFromClause<table>>::Count == Once`
+  --> tests/fail/invalid_joins.rs:61:10
+   |
+LL |         .select(comments::id);
+   |          ^^^^^^ expected `Once`, found `MoreThanOnce`
+   |
+note: required for `comments::columns::id` to implement `AppearsOnTable<JoinOn<Join<_, _, Inner>, _>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: associated types for the current `impl` cannot be restricted in `where` clauses
+note: required for `comments::columns::id` to implement `SelectableExpression<JoinOn<Join<_, _, Inner>, _>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<comments::columns::id>`
+
+      = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<Join<_, _, Inner> as AppearsInFromClause<table>>::Count == Once`
+  --> tests/fail/invalid_joins.rs:61:10
+   |
+LL |         .select(comments::id);
+   |          ^^^^^^ expected `Once`, found `MoreThanOnce`
    |
 note: required for `comments::columns::id` to implement `AppearsOnTable<Join<JoinOn<_, _>, _, Inner>>`
   --> tests/fail/invalid_joins.rs:22:9
@@ -172,48 +113,16 @@ note: required for `comments::columns::id` to implement `AppearsOnTable<Join<Joi
 LL |         id -> Integer,
    |         ^^
    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-   = note: 2 redundant requirements hidden
-   = note: required for `((id, name), (id, user_id, post_id, name), _)` to implement `AppearsOnTable<Join<JoinOn<_, _>, _, Inner>>`
-   = note: required for `Join<JoinOn<_, _>, _, Inner>` to implement `QuerySource`
+note: required for `comments::columns::id` to implement `SelectableExpression<Join<JoinOn<_, _>, _, Inner>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
    = note: 1 redundant requirement hidden
-   = note: required for `JoinOn<Join<JoinOn<_, _>, _, Inner>, _>` to implement `QuerySource`
-   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `InternalJoinDsl<SelectStatement<_>, Inner, _>`
+   = note: required for `comments::columns::id` to implement `SelectableExpression<JoinOn<Join<_, _, Inner>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<comments::columns::id>`
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:72:36
-    |
- LL |     let _ = users::table.left_join(posts::table.left_join(users::table));
-    |                          --------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
-    |                          |
-    |                          required by a bound introduced by this call
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), NullableExpression<_>)` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, _>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, _>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<SelectStatement<_>, _>`
-note: required by a bound in `left_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn left_join<Rhs>(self, rhs: Rhs) -> LeftJoin<Self, Rhs>
-    |        --------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::LeftOuter>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::left_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0271]: type mismatch resolving `<Join<table, _, _> as AppearsInFromClause<table>>::Count == Once`
   --> tests/fail/invalid_joins.rs:72:26
@@ -234,42 +143,8 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:78:20
-    |
- LL |         .left_join(posts::table.left_join(users::table.on(posts::user_id.eq(users::id))));
-    |          --------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Once`, found `MoreThanOnce`
-    |          |
-    |          required by a bound introduced by this call
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), NullableExpression<_>)` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, _>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, _>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<SelectStatement<_>, _>`
-note: required by a bound in `left_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn left_join<Rhs>(self, rhs: Rhs) -> LeftJoin<Self, Rhs>
-    |        --------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::LeftOuter>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::left_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error[E0271]: type mismatch resolving `<Join<table, _, _> as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/invalid_joins.rs:78:10
+  --> tests/fail/invalid_joins.rs:77:10
    |
 LL |         .left_join(posts::table.left_join(users::table.on(posts::user_id.eq(users::id))));
    |          ^^^^^^^^^ expected `Once`, found `MoreThanOnce`
@@ -287,45 +162,8 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-   --> tests/fail/invalid_joins.rs:85:9
-    |
- LL |       let _ = users::table.left_join(
-    |                            --------- required by a bound introduced by this call
- LL |
- LL | /         posts::table
- LL | |             .on(users::id.eq(posts::user_id))
- LL | |             .left_join(users::table),
-    | |____________________________________^ expected `Once`, found `MoreThanOnce`
-    |
-note: required for `users::columns::id` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-   --> tests/fail/invalid_joins.rs:7:9
-    |
-  LL |         id -> Integer,
-    |         ^^
-    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-    = note: 2 redundant requirements hidden
-    = note: required for `((id, name), NullableExpression<_>)` to implement `AppearsOnTable<Join<table, SelectStatement<_>, _>>`
-    = note: required for `Join<table, SelectStatement<FromClause<_>>, _>` to implement `QuerySource`
-    = note: 1 redundant requirement hidden
-    = note: required for `JoinOn<Join<table, SelectStatement<_>, _>, _>` to implement `QuerySource`
-    = note: required for `SelectStatement<FromClause<table>>` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: 1 redundant requirement hidden
-    = note: required for `users::table` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
-    = note: required for `users::table` to implement `JoinWithImplicitOnClause<OnClauseWrapper<_, _>, _>`
-note: required by a bound in `left_join`
-   --> DIESEL/diesel/diesel/src/query_dsl/mod.rs
-    |
-LL |     fn left_join<Rhs>(self, rhs: Rhs) -> LeftJoin<Self, Rhs>
-    |        --------- required by a bound in this associated function
-LL |     where
-LL |         Self: JoinWithImplicitOnClause<Rhs, joins::LeftOuter>,
-    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `QueryDsl::left_join`
- 
-        = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-
 error[E0271]: type mismatch resolving `<Join<table, _, _> as AppearsInFromClause<table>>::Count == Once`
-  --> tests/fail/invalid_joins.rs:83:26
+  --> tests/fail/invalid_joins.rs:81:26
    |
 LL |     let _ = users::table.left_join(
    |                          ^^^^^^^^^ expected `Once`, found `MoreThanOnce`
@@ -343,24 +181,92 @@ note: required for `users::columns::id` to implement `AppearsOnTable<Join<table,
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0271]: type mismatch resolving `<Once as Plus<Once>>::Output == Once`
-  --> tests/fail/invalid_joins.rs:94:10
+error[E0271]: type mismatch resolving `<JoinOn<_, _> as AppearsInFromClause<table>>::Count == Once`
+  --> tests/fail/invalid_joins.rs:92:10
    |
-LL |         .left_join(posts::table.left_join(comments::table));
-   |          ^^^^^^^^^ expected `Once`, found `MoreThanOnce`
+LL |         .select(comments::id.nullable());
+   |          ^^^^^^ expected `Once`, found `MoreThanOnce`
    |
-note: required for `comments::columns::id` to implement `AppearsOnTable<Join<JoinOn<_, _>, _, _>>`
+note: required for `comments::columns::id` to implement `AppearsOnTable<JoinOn<Join<_, _, _>, _>>`
   --> tests/fail/invalid_joins.rs:22:9
    |
 LL |         id -> Integer,
    |         ^^
    = note: associated types for the current `impl` cannot be restricted in `where` clauses
-   = note: 3 redundant requirements hidden
-   = note: required for `((id, name), NullableExpression<_>, _)` to implement `AppearsOnTable<Join<JoinOn<_, _>, _, _>>`
-   = note: required for `Join<JoinOn<Join<table, table, _>, _>, _, _>` to implement `QuerySource`
    = note: 1 redundant requirement hidden
-   = note: required for `JoinOn<Join<JoinOn<_, _>, _, _>, _>` to implement `QuerySource`
-   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `InternalJoinDsl<SelectStatement<_>, _, _>`
+   = note: required for `NullableExpression<id>` to implement `AppearsOnTable<JoinOn<Join<_, _, _>, _>>`
+   = note: required for `NullableExpression<id>` to implement `SelectableExpression<JoinOn<Join<_, _, _>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<NullableExpression<id>>`
 
       = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
-For more information about this error, try `rustc --explain E0271`.
+
+error[E0277]: the trait bound `(Once, Once): Pick<JoinOn<_, _>, _>` is not satisfied
+  --> tests/fail/invalid_joins.rs:92:10
+   |
+LL |         .select(comments::id.nullable());
+   |          ^^^^^^ unsatisfied trait bound
+   |
+   = help: the trait `diesel::internal::table_macro::Pick<diesel::internal::table_macro::JoinOn<diesel::internal::table_macro::Join<users::table, comments::table, diesel::internal::table_macro::Inner>, diesel::expression::grouped::Grouped<diesel::expression::operators::Eq<diesel::internal::table_macro::NullableExpression<comments::columns::user_id>, diesel::internal::table_macro::NullableExpression<users::columns::id>>>>, diesel::internal::table_macro::SelectStatement<diesel::internal::table_macro::FromClause<diesel::internal::table_macro::JoinOn<diesel::internal::table_macro::Join<posts::table, comments::table, diesel::internal::table_macro::Inner>, diesel::expression::grouped::Grouped<diesel::expression::operators::Eq<diesel::internal::table_macro::NullableExpression<comments::columns::post_id>, diesel::internal::table_macro::NullableExpression<posts::columns::id>>>>>>>` is not implemented for `(diesel::query_source::Once, diesel::query_source::Once)`
+   = help: the following other types implement trait `diesel::internal::table_macro::Pick<Left, Right>`:
+             (MoreThanOnce, OtherCount)
+             (diesel::query_source::Never, MoreThanOnce)
+             (diesel::query_source::Never, diesel::query_source::Never)
+             (diesel::query_source::Never, diesel::query_source::Once)
+             (diesel::query_source::Once, MoreThanOnce)
+             (diesel::query_source::Once, diesel::query_source::Never)
+note: required for `comments::columns::id` to implement `SelectableExpression<Join<JoinOn<_, _>, _, Inner>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: 2 redundant requirements hidden
+   = note: required for `NullableExpression<id>` to implement `SelectableExpression<JoinOn<Join<_, _, _>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<NullableExpression<id>>`
+
+      = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<JoinOn<_, _> as AppearsInFromClause<table>>::Count == Once`
+  --> tests/fail/invalid_joins.rs:92:10
+   |
+LL |         .select(comments::id.nullable());
+   |          ^^^^^^ expected `Once`, found `MoreThanOnce`
+   |
+note: required for `comments::columns::id` to implement `AppearsOnTable<JoinOn<Join<_, _, Inner>, _>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: associated types for the current `impl` cannot be restricted in `where` clauses
+note: required for `comments::columns::id` to implement `SelectableExpression<JoinOn<Join<_, _, Inner>, _>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: 1 redundant requirement hidden
+   = note: required for `NullableExpression<id>` to implement `SelectableExpression<JoinOn<Join<_, _, _>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<NullableExpression<id>>`
+
+      = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0271]: type mismatch resolving `<Join<_, _, Inner> as AppearsInFromClause<table>>::Count == Once`
+  --> tests/fail/invalid_joins.rs:92:10
+   |
+LL |         .select(comments::id.nullable());
+   |          ^^^^^^ expected `Once`, found `MoreThanOnce`
+   |
+note: required for `comments::columns::id` to implement `AppearsOnTable<Join<JoinOn<_, _>, _, Inner>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: associated types for the current `impl` cannot be restricted in `where` clauses
+note: required for `comments::columns::id` to implement `SelectableExpression<Join<JoinOn<_, _>, _, Inner>>`
+  --> tests/fail/invalid_joins.rs:22:9
+   |
+LL |         id -> Integer,
+   |         ^^
+   = note: 2 redundant requirements hidden
+   = note: required for `NullableExpression<id>` to implement `SelectableExpression<JoinOn<Join<_, _, _>, _>>`
+   = note: required for `SelectStatement<FromClause<JoinOn<_, _>>>` to implement `SelectDsl<NullableExpression<id>>`
+
+      = note: this error originates in the macro `table` (in Nightly builds, run with -Z macro-backtrace for more info)

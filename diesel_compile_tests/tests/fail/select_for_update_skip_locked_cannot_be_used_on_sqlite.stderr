@@ -1,5 +1,13 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/select_for_update_skip_locked_cannot_be_used_on_sqlite.rs:18:10
+   |
+LL |         .load(&mut conn)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `diesel::query_builder::locking_clause::ForUpdate` is no valid SQL fragment for the `Sqlite` backend
-    --> tests/fail/select_for_update_skip_locked_cannot_be_used_on_sqlite.rs:17:15
+    --> tests/fail/select_for_update_skip_locked_cannot_be_used_on_sqlite.rs:18:15
      |
   LL |         .load(&mut conn)
      |               ^^^^^^^^^ unsatisfied trait bound

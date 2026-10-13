@@ -28,6 +28,14 @@ LL |         InsertStatement<T, U, Op, ReturningClause<E>>: Query,
     |                                                        ^^^^^ required by this bound in `InsertStatement::<T, U, Op>::returning`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:28:10
+   |
+LL |         .get_result::<String>(&mut connection)
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: cannot select `diesel::pg::returning::old_impl::Old<columns::name>` from `ReturningQuerySource<_, table>`
     --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:28:31
      |
@@ -89,6 +97,12 @@ LL |         DeleteStatement<T, U, ReturningClause<E>>: Query,
     |                                                    ^^^^^ required by this bound in `DeleteStatement::<T, U>::returning`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:37:10
+   |
+LL |         .get_result::<String>(&mut connection)
+   |          ^^^^^^^^^^
+
 error[E0277]: cannot select `diesel::pg::returning::old_impl::Old<columns::name>` from `ReturningQuerySource<DeleteStmt, table>`
     --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:37:31
      |
@@ -150,6 +164,12 @@ LL |         InsertStatement<T, U, Op, ReturningClause<E>>: Query,
     |                                                        ^^^^^ required by this bound in `InsertStatement::<T, U, Op>::returning`
  
     
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:49:10
+   |
+LL |         .get_result::<String>(&mut connection)
+   |          ^^^^^^^^^^
+
 error[E0277]: cannot select `diesel::pg::returning::old_impl::Old<columns::name>` from `ReturningQuerySource<_, table>`
     --> tests/fail/returning_old_rejected_for_insert_delete_and_do_nothing.rs:49:31
      |

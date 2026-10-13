@@ -13,7 +13,9 @@ fn main() {
     use self::users::dsl::*;
     let mut connection = SqliteConnection::establish(":memory:").unwrap();
 
-    delete(users.filter(name.eq("Bill"))).get_result(&mut connection);
+    delete(users.filter(name.eq("Bill")))
+        .returning((id, name))
+        .get_result(&mut connection);
     //~^ ERROR: `ReturningClause<(id, name)>` is no valid SQL fragment for the `Sqlite` backend
 
     delete(users.filter(name.eq("Bill")))

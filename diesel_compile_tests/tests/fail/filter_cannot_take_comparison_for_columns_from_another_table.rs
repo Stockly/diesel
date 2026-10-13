@@ -28,7 +28,10 @@ struct User {
 fn main() {
     let mut conn = PgConnection::establish("").unwrap();
 
-    let _ = users::table.filter(posts::id.eq(1)).load::<User>(&mut conn);
+    let _ = users::table
+        .filter(posts::id.eq(1))
+        .select((users::id, users::name))
+        .load::<User>(&mut conn);
     //~^ ERROR: type mismatch resolving `<table as AppearsInFromClause<table>>::Count == Once`
 
     let _ = users::table.into_boxed::<Pg>().filter(posts::id.eq(1));
@@ -40,6 +43,7 @@ fn main() {
 
     let _ = users::table
         .filter(users::name.eq(posts::title))
+        .select((users::id, users::name))
         .load::<User>(&mut conn);
     //~^ ERROR: AppearsInFromClause
 

@@ -58,16 +58,16 @@ fn main() {
     let _ = users.order_by(name).count();
     //~^ ERROR: SelectDsl
 
-    // aggregate ORDER BY without explicit SELECT (default non-aggregate select, no GROUP BY)
-    let _ = users.order_by(max(id));
+    // aggregate ORDER BY with a multi-column non-aggregate SELECT (no GROUP BY)
+    let _ = users.select((id, name, hair_color)).order_by(max(id));
     //~^ ERROR: mixing aggregate and not aggregate expressions is not allowed in SQL
 
     // non-aggregate SELECT + aggregate then_order_by (ThenOrderDsl→NoOrderClause path)
     let _ = users.select(id).then_order_by(max(id));
     //~^ ERROR: mixing aggregate and not aggregate expressions is not allowed in SQL
 
-    // non-aggregate ORDER BY + aggregate then_order_by (ThenOrderDsl→existing OrderClause path)
-    let _ = users.order_by(name).then_order_by(max(id));
+    // non-aggregate SELECT + aggregate then_order_by (ThenOrderDsl→existing OrderClause path)
+    let _ = users.select(id).order_by(name).then_order_by(max(id));
     //~^ ERROR: mixing aggregate and not aggregate expressions is not allowed in SQL
 
     // -------------------------------------------------------------------------
@@ -136,13 +136,14 @@ fn main() {
         .then_order_by(child::value);
     //~^ ERROR: IsContainedInGroupBy
 
-    // also check existing order clause
+    // also check existing order clause, validated by a select called after group_by
     let _ = parent::table
         .left_join(child::table)
         .order_by(child::value)
         .group_by(parent::id)
+        .select(parent::id)
+        //~^ ERROR: the trait bound `SelectStatement<_, _, _, _, _, _, _>: SelectDsl<_>` is not satisfied
         .get_result(conn);
-    //~^ ERROR: the trait bound `SkipSelectableExpressionBoundCheckWrapper<_>: ValidGrouping<id>` is not satisfied
 
     // also check existing order clause
     let _ = parent::table

@@ -17,6 +17,7 @@ fn main() {
     let random_user_ids = users
         .tablesample_system(10)
         .with_seed(42.0)
+        .select((id, name))
         .load::<(i32, String)>(&mut connection);
-    //~^ ERROR: the trait bound `Tablesample<table, _>: LoadQuery<'_, _, _>` is not satisfied
+    //~^ ERROR: `Tablesample<table, SystemMethod>` is no valid SQL fragment for the `Sqlite` backend
 }

@@ -163,9 +163,14 @@ where
 /// `update(&foo).set(&foo).get_result(&conn)`.
 /// On other backends, two queries will be executed.
 ///
+/// On Stockly's fork, `table!` has no default selection and `save_changes`
+/// fetches the updated row through it, so calling it does not compile: the
+/// example below is a `compile_fail` test. Use
+/// `update(&foo).set(&foo).returning(..).get_result(&conn)` instead.
+///
 /// # Example
 ///
-/// ```rust
+/// ```rust,compile_fail
 /// # include!("../doctest_setup.rs");
 /// # use schema::animals;
 /// #

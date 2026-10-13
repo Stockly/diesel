@@ -1,5 +1,13 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/boxed_clone_queries_must_be_used_with_proper_connection.rs:17:10
+   |
+LL |         .load::<(i32,)>(&mut connection);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0271]: type mismatch resolving `<SqliteConnection as Connection>::Backend == Pg`
-    --> tests/fail/boxed_clone_queries_must_be_used_with_proper_connection.rs:16:25
+    --> tests/fail/boxed_clone_queries_must_be_used_with_proper_connection.rs:17:25
      |
   LL |         .load::<(i32,)>(&mut connection);
      |          ----           ^^^^^^^^^^^^^^^ expected `Pg`, found `Sqlite`

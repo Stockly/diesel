@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/eq_any_is_nullable.rs:18:10
+   |
+LL |         .load(&mut conn)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: cannot deserialize a value of the database type `diesel::sql_types::Nullable<diesel::sql_types::Bool>` as `bool`
     --> tests/fail/eq_any_is_nullable.rs:18:15
      |

@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/old_value_is_only_allowed_as_a_whole_returning_item_for_mariadb.rs:58:10
+   |
+LL |         .get_result(&mut conn)
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0599]: the method `eq` exists for struct `diesel::mariadb::returning::old_impl::OldValue<columns::name>`, but its trait bounds were not satisfied
    --> tests/fail/old_value_is_only_allowed_as_a_whole_returning_item_for_mariadb.rs:64:43
     |
@@ -452,17 +460,7 @@ LL |         .returning(users::id.nullable().eq_any((old_value(users::id),).null
     |
     = help: the trait `Iterator` is not implemented for `NullableExpression<(OldValue<id>,)>`
 help: the following other types implement trait `AsInExpression<T>`
-   --> DIESEL/diesel/diesel/src/expression/array_comparison.rs
-    |
-LL | / impl<ST, Combinator, Rule, Source, Rhs> AsInExpression<ST>
-LL | |     for CombinationClause<Combinator, Rule, Source, Rhs>
-LL | | where
-LL | |     ST: SqlType,
-LL | |     Self: SelectQuery<SqlType = ST>,
-LL | |     Subselect<Self, ST>: Expression<SqlType = ST>,
-    | |__________________________________________________^ `CombinationClause<Combinator, Rule, Source, Rhs>`
-    |
-   ::: DIESEL/diesel/diesel/src/pg/expression/array.rs
+   --> DIESEL/diesel/diesel/src/pg/expression/array.rs
     |
 LL | / impl<T, ST> AsInExpression<ST> for ArrayLiteral<T, ST>
 LL | | where
@@ -475,5 +473,15 @@ LL | | where
 LL | |     Self: Expression<SqlType = sql_types::Array<ST>>,
 LL | |     ST: SqlType,
     | |________________^ `diesel::pg::expression::array::ArraySubselect<T, ST>`
+    |
+   ::: DIESEL/diesel/diesel/src/expression/array_comparison.rs
+    |
+LL | / impl<ST, Combinator, Rule, Source, Rhs> AsInExpression<ST>
+LL | |     for CombinationClause<Combinator, Rule, Source, Rhs>
+LL | | where
+LL | |     ST: SqlType,
+LL | |     Self: SelectQuery<SqlType = ST>,
+LL | |     Subselect<Self, ST>: Expression<SqlType = ST>,
+    | |__________________________________________________^ `CombinationClause<Combinator, Rule, Source, Rhs>`
     = note: required for `NullableExpression<(OldValue<id>,)>` to implement `IntoIterator`
     = note: required for `NullableExpression<(OldValue<id>,)>` to implement `AsInExpression<Nullable<Integer>>`

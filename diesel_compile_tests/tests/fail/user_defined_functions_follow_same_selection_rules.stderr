@@ -22,8 +22,16 @@ LL | #[declare_sql_function]
 
       = note: this error originates in the attribute macro `declare_sql_function` (in Nightly builds, run with -Z macro-backtrace for more info)
 
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/user_defined_functions_follow_same_selection_rules.rs:46:10
+   |
+LL |         .load::<User>(&mut conn);
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0271]: type mismatch resolving `<table as AppearsInFromClause<table>>::Count == Once`
-    --> tests/fail/user_defined_functions_follow_same_selection_rules.rs:45:23
+    --> tests/fail/user_defined_functions_follow_same_selection_rules.rs:46:23
      |
   LL |         .load::<User>(&mut conn);
      |          ----         ^^^^^^^^^ expected `Once`, found `Never`

@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/old_returning_requires_pg_like_backend.rs:21:10
+   |
+LL |         .get_result::<String>(&mut connection);
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `ReturningClause<Old<name>>` is no valid SQL fragment for the `Sqlite` backend
     --> tests/fail/old_returning_requires_pg_like_backend.rs:21:31
      |

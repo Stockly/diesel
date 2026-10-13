@@ -1,5 +1,13 @@
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/mysql_does_not_support_offset_without_limit.rs:17:10
+   |
+LL |         .get_result::<(i32, String)>(&mut connection);
+   |          ^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0277]: `LimitOffsetClause<NoLimitClause, OffsetClause<_>>` is no valid SQL fragment for the `Mysql` backend
-    --> tests/fail/mysql_does_not_support_offset_without_limit.rs:16:38
+    --> tests/fail/mysql_does_not_support_offset_without_limit.rs:17:38
      |
   LL |         .get_result::<(i32, String)>(&mut connection);
      |          ----------                  ^^^^^^^^^^^^^^^ unsatisfied trait bound
@@ -32,8 +40,14 @@ LL |         Self: LoadQuery<'query, Conn, U>,
      |               ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `RunQueryDsl::get_result`
   
      
+warning: use of deprecated method `diesel::RunQueryDsl::get_result`: Use stockly's .get_only_result() if you expect just one line to be returned, and .first() if you expect several lines to be returned but are only iterested by the first one
+  --> tests/fail/mysql_does_not_support_offset_without_limit.rs:26:10
+   |
+LL |         .get_result::<(i32, String)>(&mut connection);
+   |          ^^^^^^^^^^
+
 error[E0277]: the trait bound `LimitOffsetClause<_, _>: IntoBoxedClause<'_, Mysql>` is not satisfied
-  --> tests/fail/mysql_does_not_support_offset_without_limit.rs:21:10
+  --> tests/fail/mysql_does_not_support_offset_without_limit.rs:23:10
    |
 LL |         .into_boxed()
    |          ^^^^^^^^^^ unsatisfied trait bound
@@ -50,7 +64,7 @@ LL |         .into_boxed()
 
    
 error[E0277]: the trait bound `LimitOffsetClause<_, _>: IntoBoxedClause<'_, Mysql>` is not satisfied
-    --> tests/fail/mysql_does_not_support_offset_without_limit.rs:21:10
+    --> tests/fail/mysql_does_not_support_offset_without_limit.rs:23:10
      |
   LL |         .into_boxed()
      |          ^^^^^^^^^^ unsatisfied trait bound

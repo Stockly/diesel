@@ -21,7 +21,7 @@ LL | |         user_id -> Integer,
    | |         ^^^^^^^
    | |         |     |
    | |_________|_____`diesel::expression::IsContainedInGroupBy<posts::columns::id>`
-   |           |     `diesel::expression::IsContainedInGroupBy<posts::columns::title>`
+   |           |     `diesel::expression::IsContainedInGroupBy<title>`
    |           `diesel::expression::IsContainedInGroupBy<posts::columns::user_id>`
    = note: required for `(posts::columns::user_id,)` to implement `diesel::expression::IsContainedInGroupBy<users::columns::id>`
    = note: 1 redundant requirement hidden
@@ -57,7 +57,7 @@ help: `users::columns::id` implements trait `diesel::expression::IsContainedInGr
  LL | |         id -> Integer,
    | |         ^^
    | |_________||
-   |           |`diesel::expression::IsContainedInGroupBy<users::columns::name>`
+   |           |`diesel::expression::IsContainedInGroupBy<name>`
    |           `diesel::expression::IsContainedInGroupBy<users::columns::id>`
    = note: required for `(users::columns::id, posts::columns::user_id)` to implement `diesel::expression::IsContainedInGroupBy<posts::columns::user_id>`
 note: required for `posts::columns::user_id` to implement `ValidGrouping<(users::columns::id, posts::columns::user_id)>`

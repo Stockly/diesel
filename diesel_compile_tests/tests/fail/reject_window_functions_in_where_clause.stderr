@@ -1,3 +1,11 @@
+warning: use of deprecated method `diesel::RunQueryDsl::load`: Stockly favors using .get_results() instead
+  --> tests/fail/reject_window_functions_in_where_clause.rs:19:10
+   |
+LL |         .load::<i64>(&mut connection)
+   |          ^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
 error[E0080]: evaluation panicked: Using window functions in WHERE clauses is not supported
   --> /rustc/0000000000000000000000000000000000000000/library/core/src/panic.rs:62:8
    |

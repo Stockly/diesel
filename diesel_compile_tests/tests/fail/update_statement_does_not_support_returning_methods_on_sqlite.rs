@@ -15,6 +15,7 @@ fn main() {
 
     update(users.filter(id.eq(1)))
         .set(name.eq("Bill"))
+        .returning((id, name))
         .get_result(&mut connection);
     //~^ ERROR: `ReturningClause<(id, name)>` is no valid SQL fragment for the `Sqlite` backend
 

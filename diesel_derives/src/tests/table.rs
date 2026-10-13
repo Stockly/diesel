@@ -89,20 +89,25 @@ pub(crate) fn table_with_column_feature_gate_type_check() {
     let generated = crate::table_proc_inner(input);
     let generated_str = generated.to_string();
 
+    // This fork replaces the `AllColumns` tuple (and its per-cfg-combination
+    // variants) by the `SelectClauseNotSet` marker, so a gated column only
+    // carries its `cfg` on its own items, never on the default selection.
     assert!(
-        generated_str.contains("# [cfg (all (not (feature = \"test_chrono\")))]"),
-        "Should have cfg guard for non-chrono variant"
+        !generated_str.contains("# [cfg (all (not (feature = \"test_chrono\")))]"),
+        "Should not generate cfg-combination variants of AllColumns"
     );
     assert!(
-        generated_str.contains("# [cfg (all (feature = \"test_chrono\"))]"),
-        "Should have cfg guard for chrono variant"
+        generated_str.contains(
+            "# [cfg (feature = \"test_chrono\")] impl diesel :: expression :: Expression for created_at"
+        ),
+        "Expression impl for created_at should keep its cfg guard"
     );
 
     assert!(
         generated_str.contains(
-            "pub const all_columns : AllColumns = (id , name , # [cfg (feature = \"test_chrono\")] created_at ,)"
+            "pub const all_columns : AllColumns = self :: diesel :: query_builder :: SelectClauseNotSet ;"
         ),
-        "all_columns should be a single const referencing AllColumns alias with cfg on the gated tuple field"
+        "all_columns should be the SelectClauseNotSet marker"
     );
 
     assert!(
@@ -112,12 +117,10 @@ pub(crate) fn table_with_column_feature_gate_type_check() {
     );
 
     assert!(
-        generated_str.contains("pub type AllColumns = (id , name ,) ;"),
-        "Non-gated AllColumns alias should be (id, name)"
-    );
-    assert!(
-        generated_str.contains("pub type AllColumns = (id , name , created_at ,) ;"),
-        "Gated AllColumns alias should include created_at"
+        generated_str.contains(
+            "pub type AllColumns = self :: diesel :: query_builder :: SelectClauseNotSet ;"
+        ),
+        "AllColumns alias should be the SelectClauseNotSet marker"
     );
 
     assert!(
@@ -144,36 +147,38 @@ pub(crate) fn table_with_multiple_feature_gated_columns_type_check() {
     let generated = crate::table_proc_inner(input);
     let generated_str = generated.to_string();
 
+    // Same fork behaviour as `table_with_column_feature_gate_type_check`: no
+    // cfg-combination variants of `AllColumns`, the `cfg` stays on each column.
     assert!(
-        generated_str.contains(
+        !generated_str.contains(
             "# [cfg (all (not (feature = \"test_chrono\") , not (feature = \"test_uuid\")))]"
         ),
-        "Should have cfg guard for neither feature enabled"
+        "Should not generate cfg-combination variants of AllColumns"
     );
     assert!(
-        generated_str
-            .contains("# [cfg (all (feature = \"test_chrono\" , not (feature = \"test_uuid\")))]"),
-        "Should have cfg guard for only chrono enabled"
+        generated_str.contains(
+            "# [cfg (feature = \"test_chrono\")] impl diesel :: expression :: Expression for created_at"
+        ),
+        "Expression impl for created_at should keep its cfg guard"
     );
     assert!(
-        generated_str
-            .contains("# [cfg (all (not (feature = \"test_chrono\") , feature = \"test_uuid\"))]"),
-        "Should have cfg guard for only uuid enabled"
+        generated_str.contains(
+            "# [cfg (feature = \"test_uuid\")] impl diesel :: expression :: Expression for user_uuid"
+        ),
+        "Expression impl for user_uuid should keep its cfg guard"
     );
     assert!(
-        generated_str
-            .contains("# [cfg (all (feature = \"test_chrono\" , feature = \"test_uuid\"))]"),
-        "Should have cfg guard for both features enabled"
+        generated_str.contains(
+            "# [cfg (feature = \"test_chrono\")] impl diesel :: expression :: Expression for updated_at"
+        ),
+        "Expression impl for updated_at should keep its cfg guard"
     );
 
     assert!(
         generated_str.contains(
-            "pub const all_columns : AllColumns = (id , name , \
-             # [cfg (feature = \"test_chrono\")] created_at , \
-             # [cfg (feature = \"test_chrono\")] updated_at , \
-             # [cfg (feature = \"test_uuid\")] user_uuid ,)"
+            "pub const all_columns : AllColumns = self :: diesel :: query_builder :: SelectClauseNotSet ;"
         ),
-        "all_columns should be a single const referencing AllColumns with cfg on each gated tuple field"
+        "all_columns should be the SelectClauseNotSet marker"
     );
 
     assert!(
@@ -183,22 +188,10 @@ pub(crate) fn table_with_multiple_feature_gated_columns_type_check() {
     );
 
     assert!(
-        generated_str.contains("pub type AllColumns = (id , name ,) ;"),
-        "Neither feature: AllColumns alias should be (id, name)"
-    );
-    assert!(
-        generated_str.contains("pub type AllColumns = (id , name , created_at , updated_at ,) ;"),
-        "Only chrono: AllColumns alias should include chrono columns"
-    );
-    assert!(
-        generated_str.contains("pub type AllColumns = (id , name , user_uuid ,) ;"),
-        "Only uuid: AllColumns alias should include uuid column"
-    );
-    assert!(
         generated_str.contains(
-            "pub type AllColumns = (id , name , created_at , updated_at , user_uuid ,) ;"
+            "pub type AllColumns = self :: diesel :: query_builder :: SelectClauseNotSet ;"
         ),
-        "Both features: AllColumns alias should include all columns"
+        "AllColumns alias should be the SelectClauseNotSet marker"
     );
 
     assert!(
@@ -305,17 +298,20 @@ pub(crate) fn table_with_complex_feature_gates() {
         "Expression impl for advanced_field should have cfg guard"
     );
 
+    // This fork has no `AllColumns` tuple, hence no cfg-combination variants.
     assert!(
-        generated_str.contains("pub const all_columns : AllColumns = (id , name ,"),
-        "all_columns should be a single const referencing the AllColumns alias"
+        generated_str.contains(
+            "pub const all_columns : AllColumns = self :: diesel :: query_builder :: SelectClauseNotSet ;"
+        ),
+        "all_columns should be the SelectClauseNotSet marker"
     );
     assert!(
-        generated_str.contains("not (all (feature = \"postgres\" , feature = \"chrono\"))"),
-        "Combinatorial cfg should include negated complex conditions"
+        !generated_str.contains("not (all (feature = \"postgres\" , feature = \"chrono\"))"),
+        "Should not generate negated combinatorial cfg conditions"
     );
     assert!(
-        generated_str.contains("not (any (feature = \"sqlite\" , feature = \"mysql\"))"),
-        "Combinatorial cfg should include negated any() conditions"
+        !generated_str.contains("not (any (feature = \"sqlite\" , feature = \"mysql\"))"),
+        "Should not generate negated combinatorial any() conditions"
     );
 }
 
