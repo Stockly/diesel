@@ -507,6 +507,24 @@ fn print_schema_with_multiple_schema_cross_schema_foreign_key() {
 
 #[test]
 #[cfg(feature = "postgres")]
+fn print_schema_with_cross_schema_foreign_key_leading_digit() {
+    test_multiple_print_schema(
+        "print_schema_with_cross_schema_foreign_key_leading_digit",
+        vec![
+            "--schema-key",
+            "user1",
+            "--schema",
+            "game",
+            "--schema-key",
+            "user2",
+            "--schema",
+            "people",
+        ],
+    )
+}
+
+#[test]
+#[cfg(feature = "postgres")]
 fn print_schema_with_same_schema_cross_file_foreign_key() {
     test_multiple_print_schema(
         "print_schema_with_same_schema_cross_file_foreign_key",
