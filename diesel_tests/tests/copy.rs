@@ -265,9 +265,9 @@ fn copy_to_csv() {
 
 #[diesel_test_helper::test]
 fn copy_to_text() {
+    let conn = &mut connection_with_sean_and_tess_in_users_table();
     // Test with explicit Text format
     {
-        let conn = &mut connection_with_sean_and_tess_in_users_table();
         let mut out = String::new();
         let mut copy = diesel::copy_to(users::table)
             .with_format(CopyFormat::Text)
@@ -276,16 +276,11 @@ fn copy_to_text() {
         copy.read_to_string(&mut out).unwrap();
         assert_eq!(out, "1\tSean\t\\N\n2\tTess\t\\N\n");
     }
-
-    // Test with default format (which is Text)
-    // Use a fresh connection to avoid "another command is already in progress" error
-    {
-        let conn = &mut connection_with_sean_and_tess_in_users_table();
-        let mut out = String::new();
-        let mut copy = diesel::copy_to(users::table).load_raw(conn).unwrap();
-        copy.read_to_string(&mut out).unwrap();
-        assert_eq!(out, "1\tSean\t\\N\n2\tTess\t\\N\n");
-    }
+    let mut out = String::new();
+    // default is text
+    let mut copy = diesel::copy_to(users::table).load_raw(conn).unwrap();
+    copy.read_to_string(&mut out).unwrap();
+    assert_eq!(out, "1\tSean\t\\N\n2\tTess\t\\N\n");
 }
 
 #[diesel_test_helper::test]
@@ -338,6 +333,96 @@ fn copy_to_queryable() {
         .get_result::<String>(conn)
         .unwrap();
     assert_eq!(name, "Sean");
+}
+
+#[diesel_test_helper::test]
+fn copy_to_leaves_the_connection_ready_for_the_next_query() {
+    let conn = &mut connection_with_sean_and_tess_in_users_table();
+
+    #[derive(Queryable, Selectable)]
+    #[diesel(table_name = users)]
+    struct User {
+        name: String,
+    }
+
+    let delete_nobody =
+        |conn: &mut TestConnection| diesel::delete(users::table.find(3)).execute(conn).unwrap();
+    assert_eq!(delete_nobody(conn), 0);
+
+    // every row read
+    let names = diesel::copy_to(users::table)
+        .load::<User, _>(conn)
+        .unwrap()
+        .map(|user| user.map(|user| user.name))
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+    assert_eq!(names.len(), 2);
+    assert_eq!(delete_nobody(conn), 0);
+
+    // dropped after the first row
+    let first = diesel::copy_to(users::table)
+        .load::<User, _>(conn)
+        .unwrap()
+        .next()
+        .unwrap();
+    assert!(first.is_ok());
+    assert_eq!(delete_nobody(conn), 0);
+
+    // raw data read to the end
+    let mut out = String::new();
+    diesel::copy_to(users::table)
+        .load_raw(conn)
+        .unwrap()
+        .read_to_string(&mut out)
+        .unwrap();
+    assert_eq!(out.lines().count(), 2);
+    assert_eq!(delete_nobody(conn), 0);
+
+    // raw data never read
+    drop(diesel::copy_to(users::table).load_raw(conn).unwrap());
+    assert_eq!(delete_nobody(conn), 0);
+}
+
+table! {
+    copy_to_failing_rows {
+        id -> Integer,
+        value -> Text,
+    }
+}
+
+#[diesel_test_helper::test]
+fn copy_to_load_reports_a_copy_failing_after_its_first_rows() {
+    use diesel::connection::SimpleConnection;
+
+    let conn = &mut connection();
+    // The server converts the values to the client encoding as it sends them, so it fails the
+    // `COPY` on the third row, which `LATIN1` cannot represent, after sending the first two
+    conn.batch_execute(
+        "CREATE TEMPORARY TABLE copy_to_failing_rows (id INTEGER NOT NULL, value TEXT NOT NULL); \
+         INSERT INTO copy_to_failing_rows VALUES (1, 'a'), (2, 'b'), (3, '€'), (4, 'd'); \
+         SET LOCAL client_encoding = 'LATIN1';",
+    )
+    .unwrap();
+
+    #[derive(Queryable, Selectable)]
+    #[diesel(table_name = copy_to_failing_rows)]
+    struct Row {
+        value: String,
+    }
+
+    let mut rows = diesel::copy_to(copy_to_failing_rows::table)
+        .load::<Row, _>(conn)
+        .unwrap()
+        .map(|row| row.map(|row| row.value));
+    assert_eq!(rows.next().unwrap().unwrap(), "a");
+    assert_eq!(rows.next().unwrap().unwrap(), "b");
+    let error = rows.next().unwrap().expect_err("the COPY to fail");
+    assert!(
+        matches!(error, diesel::result::Error::DatabaseError(..)),
+        "{error:?}"
+    );
+    assert!(error.to_string().contains("LATIN1"), "{error}");
+    assert!(rows.next().is_none());
 }
 
 #[diesel_test_helper::test]

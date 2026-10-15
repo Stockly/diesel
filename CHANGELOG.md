@@ -84,6 +84,7 @@ Increasing the minimal supported Rust version will always be coupled at least wi
 * Fixed a failed top-level `COMMIT`, such as a deferred foreign key violation on SQLite, leaving the transaction open
 * Fixed `embed_migrations!` making the crate hash depend on the directory the crate is built in, which broke reproducible builds
 * Reject subselects that reference an ungrouped column of an aggregating outer query
+* Fixed PostgreSQL `copy_to` leaving the connection inside the `COPY`: the next query on it failed with `another command is already in progress` after `load_raw`, or never returned after `load`, which also hung a pooled connection's health check. Reading a `COPY TO` to its end, or dropping it before, now reads the `COPY`'s final result, and `load` returns the error of a `COPY` that fails partway instead of panicking
 
 ### Changed
 

@@ -42,6 +42,7 @@ pub struct CopyToBuffer<'conn> {
     offset: usize,
     len: usize,
     result: PgResult,
+    finished: bool,
 }
 
 impl<'conn> CopyToBuffer<'conn> {
@@ -52,7 +53,17 @@ impl<'conn> CopyToBuffer<'conn> {
             offset: 0,
             len: 0,
             result,
+            finished: false,
         }
+    }
+
+    /// Reads the final result of the `COPY` once libpq reported the end of its data: until then,
+    /// libpq refuses to send any other query on this connection.
+    fn finish(&mut self) -> QueryResult<()> {
+        self.finished = true;
+        let result = self.conn.get_next_result().map(|_| ());
+        while self.conn.get_next_result()?.is_some() {}
+        result
     }
 
     #[allow(unsafe_code)] // construct a slice from a raw ptr
@@ -77,6 +88,19 @@ impl Drop for CopyToBuffer<'_> {
             unsafe { pq_sys::PQfreemem(self.ptr as *mut ffi::c_void) };
             self.ptr = core::ptr::null_mut();
         }
+        if !self.finished {
+            // Read what is left of the `COPY`, like `RowByRowCursor` reads the rows left of its
+            // query, so that the connection can run its next query
+            while unsafe {
+                pq_sys::PQgetCopyData(self.conn.internal_connection.as_ptr(), &mut self.ptr, 0)
+            } >= 0
+            {
+                unsafe { pq_sys::PQfreemem(self.ptr as *mut ffi::c_void) };
+                self.ptr = core::ptr::null_mut();
+            }
+            // Dropped before its end, the `COPY` has no reader left to report its outcome to
+            let _ = self.finish();
+        }
     }
 }
 
@@ -93,7 +117,7 @@ impl Read for CopyToBuffer<'_> {
 impl BufRead for CopyToBuffer<'_> {
     #[allow(unsafe_code)] // ffi code + ptr arithmetic
     fn fill_buf(&mut self) -> std::io::Result<&[u8]> {
-        if self.data_slice().is_empty() {
+        if self.data_slice().is_empty() && !self.finished {
             unsafe {
                 if !self.ptr.is_null() {
                     pq_sys::PQfreemem(self.ptr as *mut ffi::c_void);
@@ -105,7 +129,10 @@ impl BufRead for CopyToBuffer<'_> {
                     len if len >= 0 => {
                         self.len = 1 + usize::try_from(len).map_err(std::io::Error::other)?
                     }
-                    -1 => self.len = 0,
+                    -1 => {
+                        self.len = 0;
+                        self.finish().map_err(std::io::Error::other)?;
+                    }
                     _ => {
                         let error = self.conn.last_error_message();
                         return Err(std::io::Error::other(error));

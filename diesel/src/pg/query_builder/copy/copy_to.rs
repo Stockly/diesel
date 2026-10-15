@@ -298,7 +298,12 @@ where
         U::SelectExpression: AppearsOnTable<T::Table> + CopyTarget<Table = T::Table>,
         C: ExecuteCopyToConnection,
     {
-        let io_result_mapper = |e| crate::result::Error::DeserializationError(Box::new(e));
+        // A `COPY` failing partway reaches us as a `DatabaseError` boxed into an `io::Error`:
+        // hand it back as is, so that its kind can be matched on
+        let io_result_mapper = |e: std::io::Error| match e.downcast::<crate::result::Error>() {
+            Ok(e) => e,
+            Err(e) => crate::result::Error::DeserializationError(Box::new(e)),
+        };
 
         let command = CopyToCommand {
             p: PhantomData::<U::SelectExpression>,
@@ -349,6 +354,10 @@ where
                 }
             }
             let buffer = C::get_buffer(&out);
+            if buffer.is_empty() {
+                // The end of the `COPY`, already read
+                return None;
+            }
             len = Some(buffer.len());
             let tuple_count =
                 i16::from_be_bytes((&buffer[..2]).try_into().expect("Exactly 2 bytes"));
@@ -388,7 +397,11 @@ where
                 let row = C::make_row(&out, buffers);
                 Some(U::build_from_row(&row).map_err(crate::result::Error::DeserializationError))
             } else {
-                None
+                // The trailer: read the end of the `COPY` too, which reports whether it failed
+                let trailer_len = buffer.len();
+                out.consume(trailer_len);
+                len = None;
+                out.fill_buf().err().map(|e| Err(io_result_mapper(e)))
             }
         }))
     }
