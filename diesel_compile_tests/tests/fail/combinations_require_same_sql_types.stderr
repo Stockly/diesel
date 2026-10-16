@@ -16,7 +16,7 @@ LL |         .union(comments::table.select((comments::id, comments::post_id)));
    |                |
    |                this expression has type `table`
 note: required by a bound in `union`
-  --> DIESEL/diesel/diesel/src/query_dsl/combine_dsl.rs
+  --> ROOT/diesel/src/query_dsl/combine_dsl.rs
    |
 LL |     fn union<Rhs>(self, rhs: Rhs) -> dsl::Union<Self, Rhs>
    |        ----- required by a bound in this associated function
@@ -43,7 +43,7 @@ LL |     let _ = union.union(comments::table.select((comments::id, comments::pos
    |                         |
    |                         this expression has type `table`
 note: required by a bound in `union`
-  --> DIESEL/diesel/diesel/src/query_dsl/combine_dsl.rs
+  --> ROOT/diesel/src/query_dsl/combine_dsl.rs
    |
 LL |     fn union<Rhs>(self, rhs: Rhs) -> dsl::Union<Self, Rhs>
    |        ----- required by a bound in this associated function

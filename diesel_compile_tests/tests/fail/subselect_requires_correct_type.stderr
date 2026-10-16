@@ -8,7 +8,7 @@ error[E0277]: the trait bound `SelectStatement<_, _, _, _>: AsInExpression<_>` i
     |
     = help: the trait `diesel::internal::derives::multiconnection::array_comparison::AsInExpression<diesel::sql_types::Integer>` is not implemented for `SelectStatement<FromClause<table>, _, _, _>`
 help: the trait `AsInExpression<ST>` is conditionally implemented for `SelectStatement<F, S, D, W, O, LOf, G, H, LC>`
-   --> DIESEL/diesel/diesel/src/expression/array_comparison.rs
+   --> ROOT/diesel/src/expression/array_comparison.rs
     |
 LL | / impl<ST, F, S, D, W, O, LOf, G, H, LC> AsInExpression<ST>
 LL | |     for SelectStatement<F, S, D, W, O, LOf, G, H, LC>
@@ -20,7 +20,7 @@ LL | |     Self: SelectQuery<SqlType = ST>,
     |                         |
     |                         unsatisfied requirement introduced here: `<diesel::internal::table_macro::SelectStatement<diesel::internal::table_macro::FromClause<users::table>, diesel::query_builder::select_clause::DefaultSelectClause<diesel::internal::table_macro::FromClause<users::table>>, diesel::query_builder::distinct_clause::NoDistinctClause, diesel::query_builder::where_clause::WhereClause<diesel::expression::grouped::Grouped<diesel::expression::operators::Eq<users::columns::id, diesel::internal::derives::as_expression::Bound<diesel::sql_types::Integer, i32>>>>> as SelectQuery>::SqlType == diesel::sql_types::Integer`
 note: required by a bound in `eq_any`
-   --> DIESEL/diesel/diesel/src/expression_methods/global_expression_methods.rs
+   --> ROOT/diesel/src/expression_methods/global_expression_methods.rs
     |
 LL |     fn eq_any<T>(self, values: T) -> dsl::EqAny<Self, T>
     |        ------ required by a bound in this associated function
