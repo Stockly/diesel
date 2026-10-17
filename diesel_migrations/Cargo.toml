@@ -24,6 +24,11 @@ dotenvy = "0.15"
 cfg-if = "1.0.0"
 tempfile = "3.2"
 
+[dependencies]
+anstyle = "1.0"
+unicode-segmentation = "1.12"
+unicode-width = "0.2"
+
 [dependencies.diesel]
 version = "~2.3.0"
 path = "../diesel"

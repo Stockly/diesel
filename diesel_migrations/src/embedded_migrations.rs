@@ -1,8 +1,7 @@
 use std::fmt::Display;
 
-use crate::MigrationError;
-use crate::errors::RunMigrationsError;
-use crate::file_based_migrations::{DieselMigrationName, TomlMetadataWrapper};
+use crate::file_based_migrations::TomlMetadataWrapper;
+use crate::{MigrationDirection, MigrationError, SqlMigrationError};
 use diesel::backend::Backend;
 use diesel::migration::{Migration, MigrationName, MigrationSource, MigrationVersion, Result};
 
@@ -89,18 +88,26 @@ impl Display for EmbeddedName {
 impl<DB: Backend> Migration<DB> for &EmbeddedMigration {
     fn run(&self, conn: &mut dyn diesel::connection::BoxableConnection<DB>) -> Result<()> {
         Ok(conn.batch_execute(self.up).map_err(|e| {
-            let name = DieselMigrationName::from_name(self.name.name)
-                .expect("We have a valid name here, we checked this in `embed_migration!`");
-            RunMigrationsError::QueryError(name, e)
+            SqlMigrationError::new(
+                self.name.name.to_owned(),
+                MigrationDirection::Run,
+                None,
+                self.up,
+                e,
+            )
         })?)
     }
 
     fn revert(&self, conn: &mut dyn diesel::connection::BoxableConnection<DB>) -> Result<()> {
         match self.down {
             Some(down) => Ok(conn.batch_execute(down).map_err(|e| {
-                let name = DieselMigrationName::from_name(self.name.name)
-                    .expect("We have a valid name here, we checked this in `embed_migration!`");
-                RunMigrationsError::QueryError(name, e)
+                SqlMigrationError::new(
+                    self.name.name.to_owned(),
+                    MigrationDirection::Revert,
+                    None,
+                    down,
+                    e,
+                )
             })?),
             None => Err(MigrationError::NoMigrationRevertFile.into()),
         }
