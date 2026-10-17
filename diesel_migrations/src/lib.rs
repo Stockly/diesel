@@ -37,6 +37,20 @@
 //! The [`CombinedMigrationSource`] allows you to combine migrations from different sources
 //! to execute them together
 //!
+//! ## SQL migration errors
+//!
+//! Errors executing file-based or embedded SQL can be downcast to
+//! [`SqlMigrationError`]. They identify the SQL source and preserve the underlying
+//! Diesel error. When the backend provides a valid statement position (currently
+//! PostgreSQL), the diagnostic includes one-based character coordinates and up to
+//! five source lines with a caret. Excerpts expand tabs to four-column stops and
+//! crop long lines to a common window of at most 120 display columns, marked by
+//! `…`. Only this bounded excerpt is retained; the complete SQL is not stored in
+//! the diagnostic. Database details and hints are displayed when available.
+//!
+//! Formatting an error with `Display` is always plain text. The Diesel CLI adds
+//! color on supported interactive stderr terminals and respects `NO_COLOR`.
+//!
 //! ## Transactions
 //!
 //! By default, each migration runs inside its own transaction. This means a failing
@@ -58,11 +72,15 @@ mod errors;
 mod file_based_migrations;
 mod migration_harness;
 mod rust_migrations;
+mod sql_migration_error;
 
 pub use self::embedded_migrations::EmbeddedMigrations;
 pub use self::file_based_migrations::FileBasedMigrations;
 pub use self::migration_harness::{HarnessWithOutput, MigrationHarness};
 pub use self::rust_migrations::{RustMigration, RustMigrationSource, TypedMigration};
+pub use self::sql_migration_error::{
+    MigrationDirection, MigrationErrorLine, MigrationErrorLocation, SqlMigrationError,
+};
 pub use combined_migrations::CombinedMigrationSource;
 pub use migrations_macros::embed_migrations;
 

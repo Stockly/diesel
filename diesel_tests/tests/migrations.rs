@@ -6,6 +6,75 @@ use diesel::QueryResult;
 use diesel_migrations::{MigrationHarness, RustMigration};
 use diesel_migrations::{RustMigrationSource, TypedMigration};
 
+#[cfg(feature = "postgres")]
+mod sql_diagnostics {
+    use diesel::migration::MigrationSource;
+    use diesel_migrations::{
+        EmbeddedMigration, EmbeddedMigrations, EmbeddedName, MigrationDirection, MigrationHarness,
+        SqlMigrationError, TomlMetadataWrapper, embed_migrations,
+    };
+
+    const BROKEN_UP: EmbeddedMigrations = embed_migrations!("tests/migration_fixtures/broken_up");
+    const BROKEN_DOWN: EmbeddedMigrations =
+        embed_migrations!("tests/migration_fixtures/broken_down");
+
+    #[diesel_test_helper::test]
+    fn embedded_sql_errors_expose_locations_and_preserve_transactions() {
+        let conn = &mut crate::schema::connection();
+        for (source, direction, file) in [
+            (BROKEN_UP, MigrationDirection::Run, "up.sql"),
+            (BROKEN_DOWN, MigrationDirection::Revert, "down.sql"),
+        ] {
+            let migrations =
+                <EmbeddedMigrations as MigrationSource<diesel::pg::Pg>>::migrations(&source)
+                    .unwrap();
+            let migration = &*migrations[0];
+            if direction == MigrationDirection::Revert {
+                conn.run_migration(migration).unwrap();
+            }
+            let before = conn.applied_migrations().unwrap();
+            let error = match direction {
+                MigrationDirection::Run => conn.run_migration(migration).unwrap_err(),
+                MigrationDirection::Revert => conn.revert_migration(migration).unwrap_err(),
+            };
+            let diagnostic = error.downcast_ref::<SqlMigrationError>().unwrap();
+            assert_eq!(diagnostic.direction(), direction);
+            assert!(diagnostic.path().is_none());
+            assert!(diagnostic.is_embedded());
+            assert!(diagnostic.source_label().ends_with(file));
+            assert_eq!(diagnostic.location().unwrap().line(), 3);
+            assert_eq!(diagnostic.location().unwrap().column(), 8);
+            assert_eq!(diagnostic.excerpt()[2].text(), "SELECT .;");
+            assert!(error.to_string().contains(" (embedded)"));
+            assert!(
+                std::error::Error::source(diagnostic)
+                    .unwrap()
+                    .is::<diesel::result::Error>()
+            );
+            // A failed run/revert must not change recorded migration versions.
+            assert_eq!(conn.applied_migrations().unwrap(), before);
+        }
+    }
+
+    #[diesel_test_helper::test]
+    fn server_details_and_hints_without_positions_are_preserved() {
+        const SOURCE: EmbeddedMigrations = EmbeddedMigrations::new(&[EmbeddedMigration::new(
+            "DO $$ BEGIN RAISE EXCEPTION 'migration failed' USING DETAIL = 'the detail', HINT = 'the hint'; END $$;",
+            None,
+            EmbeddedName::new("99999999999997_details"),
+            TomlMetadataWrapper::new(true),
+        )]);
+        let conn = &mut crate::schema::connection();
+        let error = conn.run_pending_migrations(SOURCE).unwrap_err();
+        let diagnostic = error.downcast_ref::<SqlMigrationError>().unwrap();
+        assert!(diagnostic.location().is_none());
+        assert!(diagnostic.excerpt().is_empty());
+        let output = error.to_string();
+        assert!(output.contains("99999999999997_details/up.sql (embedded)"));
+        assert!(output.contains("DETAIL: the detail\nHINT: the hint"));
+    }
+}
+
 static GLOBAL_FLAG: AtomicU16 = AtomicU16::new(0);
 
 fn function(_conn: &mut TestConnection) -> QueryResult<()> {

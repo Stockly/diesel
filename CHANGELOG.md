@@ -14,6 +14,7 @@ Increasing the minimal supported Rust version will always be coupled at least wi
 
 ### Added
 
+* SQL migration errors now expose `SqlMigrationError` with source labels and the underlying Diesel error. PostgreSQL errors include character-based line/column locations, bounded SQL excerpts, and database details and hints when available. The CLI renders diagnostics in color on supported interactive stderr terminals and respects `NO_COLOR`.
 * Add support for sqlite-wasm-rs 0.6
 * Add support for Batch-Update for PostgreSQL, MySQL and SQLite
 * Diesel-Migrations now contains a migration source that easily allows you to register Rust based migrations

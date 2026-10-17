@@ -149,6 +149,53 @@ fn error_migrations_fails() {
             .stderr()
             .contains("Failed to run run_error_migrations_fails with: ")
     );
+    assert!(
+        result
+            .stderr()
+            .contains("run_error_migrations_fails/up.sql")
+    );
+    assert!(!result.stderr().contains('\x1b'));
+    #[cfg(not(feature = "postgres"))]
+    assert!(!result.stderr().contains(" |"));
+}
+
+#[test]
+#[cfg(feature = "postgres")]
+fn sql_migration_diagnostics_cover_run_revert_and_redo() {
+    for command in ["run", "revert", "redo"] {
+        let p = project(&format!("sql_diagnostic_{command}"))
+            .folder("migrations")
+            .build();
+        assert!(p.command("setup").run().is_success());
+        // Non-ASCII text precedes the error, and multiple statements are sent
+        // as one batch. The returned position must be mapped to the whole file.
+        let invalid = "-- café\nSELECT 1;\nSELECT .;\n-- after\n-- last\n-- omitted";
+        let (up, down, file) = if command == "run" {
+            (invalid, "SELECT 1;", "up.sql")
+        } else {
+            ("SELECT 1;", invalid, "down.sql")
+        };
+        p.create_migration("123_diagnostic", up, Some(down), None);
+        if command != "run" {
+            assert!(p.command("migration").arg("run").run().is_success());
+        }
+        let result = p
+            .command("migration")
+            .arg(command)
+            .env("CLICOLOR_FORCE", "1")
+            .run();
+        assert_eq!(result.code(), 1);
+        let output = result.stderr();
+        assert!(
+            output.contains(&format!("123_diagnostic/{file}:3:8")),
+            "{output}"
+        );
+        assert!(output.contains("3 | SELECT .;\n   |        ^"), "{output}");
+        assert!(output.contains("5 | -- last"), "{output}");
+        assert!(!output.contains("-- omitted"), "{output}");
+        // Captured stderr stays plain even when the environment requests color.
+        assert!(!output.contains('\x1b'), "{output}");
+    }
 }
 
 #[test]

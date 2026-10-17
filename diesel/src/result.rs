@@ -202,6 +202,11 @@ pub trait DatabaseErrorInformation {
 
     /// An optional integer indicating an error cursor position as an index into
     /// the original statement string.
+    ///
+    /// Positions are one-based and measured in characters, not bytes. A position
+    /// immediately after the last character indicates an end-of-input error.
+    /// Currently, PostgreSQL is the only built-in backend that supplies this
+    /// information.
     fn statement_position(&self) -> Option<i32>;
 }
 

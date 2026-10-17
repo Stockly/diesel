@@ -21,6 +21,7 @@ mod config;
 #[macro_use]
 mod database;
 mod cli;
+mod diagnostics;
 mod errors;
 mod infer_schema_internals;
 mod migrations;
@@ -49,7 +50,7 @@ pub static TIMESTAMP_FORMAT: &str = "%Y-%m-%d-%H%M%S";
 
 fn main() {
     if let Err(e) = inner_main() {
-        eprintln!("{e}");
+        diagnostics::print_error(&e);
         std::process::exit(1)
     }
 }

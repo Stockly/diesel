@@ -11,6 +11,7 @@ use diesel::migration::{
 use migrations_internals::TomlMetadata;
 
 use crate::errors::{MigrationError, RunMigrationsError};
+use crate::{MigrationDirection, SqlMigrationError};
 
 /// A migration source based on a migration directory in the file system
 ///
@@ -192,11 +193,12 @@ impl SqlFileMigration {
 
 impl<DB: Backend> Migration<DB> for SqlFileMigration {
     fn run(&self, conn: &mut dyn BoxableConnection<DB>) -> migration::Result<()> {
-        Ok(run_sql_from_file(
+        run_sql_from_file(
             conn,
             &self.base_path.join("up.sql"),
             &self.name,
-        )?)
+            MigrationDirection::Run,
+        )
     }
 
     fn revert(&self, conn: &mut dyn BoxableConnection<DB>) -> migration::Result<()> {
@@ -204,7 +206,7 @@ impl<DB: Backend> Migration<DB> for SqlFileMigration {
         if matches!(down_path.metadata(), Err(e) if e.kind() == std::io::ErrorKind::NotFound) {
             Err(MigrationError::NoMigrationRevertFile.into())
         } else {
-            Ok(run_sql_from_file(conn, &down_path, &self.name)?)
+            run_sql_from_file(conn, &down_path, &self.name, MigrationDirection::Revert)
         }
     }
 
@@ -284,7 +286,8 @@ fn run_sql_from_file<DB: Backend>(
     conn: &mut dyn BoxableConnection<DB>,
     path: &Path,
     name: &DieselMigrationName,
-) -> Result<(), RunMigrationsError> {
+    direction: MigrationDirection,
+) -> migration::Result<()> {
     let map_io_err = |e| RunMigrationsError::MigrationError(name.clone(), MigrationError::from(e));
 
     let mut sql = String::new();
@@ -292,11 +295,11 @@ fn run_sql_from_file<DB: Backend>(
     file.read_to_string(&mut sql).map_err(map_io_err)?;
 
     if sql.is_empty() {
-        return Err(RunMigrationsError::EmptyMigration(name.clone()));
+        return Err(RunMigrationsError::EmptyMigration(name.clone()).into());
     }
 
     conn.batch_execute(&sql)
-        .map_err(|e| RunMigrationsError::QueryError(name.clone(), e))?;
+        .map_err(|e| SqlMigrationError::new(name.to_string(), direction, Some(path), &sql, e))?;
     Ok(())
 }
 
