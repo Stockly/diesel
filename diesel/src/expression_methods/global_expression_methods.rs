@@ -44,6 +44,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -248,6 +253,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -280,6 +290,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -312,6 +327,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -343,6 +363,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -374,6 +399,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -405,6 +435,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -437,6 +472,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use schema::animals::dsl::*;
     /// #     let connection = &mut establish_connection();
@@ -469,6 +509,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -510,6 +555,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -580,6 +630,11 @@ pub trait ExpressionMethods: Expression + Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -651,6 +706,11 @@ pub trait UntypedExpressionMethods: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -682,6 +742,11 @@ pub trait UntypedExpressionMethods: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -714,6 +779,11 @@ pub trait UntypedExpressionMethods: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -746,6 +816,11 @@ pub trait UntypedExpressionMethods: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -839,6 +914,11 @@ pub trait NullableExpressionMethods: Expression + Sized {
     ///     }
     /// }
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// #[cfg(miri)]
+    /// fn main() {}
+    /// #[cfg(not(miri))]
     /// fn main() {
     ///     use self::animals::dsl::*;
     ///     let connection = &mut establish_connection();
@@ -866,6 +946,11 @@ pub trait NullableExpressionMethods: Expression + Sized {
     ///     }
     /// }
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// #[cfg(miri)]
+    /// fn main() {}
+    /// #[cfg(not(miri))]
     /// fn main() {
     ///     use diesel::result::{Error, UnexpectedNullError};
     ///     use self::animals::dsl::*;
@@ -904,6 +989,11 @@ pub trait NullableExpressionMethods: Expression + Sized {
     /// # joinable!(posts -> users (user_id));
     /// # allow_tables_to_appear_in_same_query!(posts, users);
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// #[cfg(miri)]
+    /// fn main() {}
+    /// #[cfg(not(miri))]
     /// fn main() {
     ///     use self::posts;
     ///     use self::users;

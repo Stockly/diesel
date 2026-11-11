@@ -143,15 +143,15 @@ impl SqliteConnection {
             .get_db_config_bool(ffi::SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION)
     }
 
-    /// Enable or disable the `fts3_tokenizer()` SQL function.
-    ///
-    /// The [`fts3_tokenizer()`](https://www.sqlite.org/fts3.html#f3tknzr) function
-    /// allows overloading the default FTS3/FTS4 tokenizer, which can be exploited
-    /// if an attacker can execute arbitrary SQL. Disable it unless you need custom
-    /// FTS3 tokenizers.
+    /// Enable or disable the two-argument `fts3_tokenizer()` SQL function, which Diesel disables on every new connection.
     ///
     /// Requires SQLite 3.12.0 or later, otherwise returns an error.
-    pub fn set_fts3_tokenizer_enabled(&mut self, enabled: bool) -> QueryResult<()> {
+    ///
+    /// # Safety
+    ///
+    /// While it is enabled, SQL text can make SQLite call through any pointer, so no untrusted SQL may run on this connection.
+    #[allow(unsafe_code)]
+    pub unsafe fn set_fts3_tokenizer_enabled(&mut self, enabled: bool) -> QueryResult<()> {
         self.raw_connection
             .set_db_config_bool(ffi::SQLITE_DBCONFIG_ENABLE_FTS3_TOKENIZER, enabled)
     }
@@ -322,6 +322,7 @@ impl SqliteConnection {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::connection::DatabaseVersion;
     use crate::dsl::sql;
     use crate::prelude::*;
     #[cfg(not(miri))]
@@ -429,12 +430,31 @@ mod tests {
     }
 
     #[diesel_test_helper::test]
+    #[expect(unsafe_code, reason = "enabling the legacy tokenizer is unsafe")]
     fn db_config_fts3_tokenizer_roundtrip() {
         let conn = &mut connection();
-        conn.set_fts3_tokenizer_enabled(false).unwrap();
+        // SAFETY: this connection only runs the test's own SQL.
+        unsafe { conn.set_fts3_tokenizer_enabled(false) }.unwrap();
         assert!(!conn.is_fts3_tokenizer_enabled().unwrap());
-        conn.set_fts3_tokenizer_enabled(true).unwrap();
+        // SAFETY: this connection only runs the test's own SQL.
+        unsafe { conn.set_fts3_tokenizer_enabled(true) }.unwrap();
         assert!(conn.is_fts3_tokenizer_enabled().unwrap());
+    }
+
+    #[cfg(not(miri))] // ffi string access
+    #[diesel_test_helper::test]
+    fn new_connection_rejects_a_tokenizer_pointer_from_sql_text() {
+        use crate::connection::SimpleConnection;
+
+        let conn = &mut connection();
+        assert!(!conn.is_fts3_tokenizer_enabled().unwrap());
+        assert!(
+            conn.batch_execute(
+                "SELECT fts3_tokenizer('evil', x'4141414141414141'); \
+                 CREATE VIRTUAL TABLE evil_fts USING fts3(x, tokenize=evil);"
+            )
+            .is_err()
+        );
     }
 
     #[diesel_test_helper::test]
@@ -447,13 +467,11 @@ mod tests {
     }
 
     #[diesel_test_helper::test]
-    #[expect(unsafe_code, reason = "SQLite version lookup requires FFI")]
     fn db_config_attach_create_roundtrip() {
-        // SAFETY: sqlite3_libversion_number has no caller preconditions.
-        if unsafe { ffi::sqlite3_libversion_number() } < 3_049_000 {
+        let conn = &mut connection();
+        if conn.version() < DatabaseVersion::new(3, 49, 0) {
             return;
         }
-        let conn = &mut connection();
         conn.set_attach_create_enabled(false).unwrap();
         assert!(!conn.is_attach_create_enabled().unwrap());
         conn.set_attach_create_enabled(true).unwrap();
@@ -461,13 +479,11 @@ mod tests {
     }
 
     #[diesel_test_helper::test]
-    #[expect(unsafe_code, reason = "SQLite version lookup requires FFI")]
     fn db_config_attach_write_roundtrip() {
-        // SAFETY: sqlite3_libversion_number has no caller preconditions.
-        if unsafe { ffi::sqlite3_libversion_number() } < 3_049_000 {
+        let conn = &mut connection();
+        if conn.version() < DatabaseVersion::new(3, 49, 0) {
             return;
         }
-        let conn = &mut connection();
         conn.set_attach_write_enabled(false).unwrap();
         assert!(!conn.is_attach_write_enabled().unwrap());
         conn.set_attach_write_enabled(true).unwrap();
@@ -642,11 +658,13 @@ mod tests {
 
     #[cfg(not(miri))] // potential ffi string access
     #[diesel_test_helper::test]
+    #[expect(unsafe_code, reason = "enabling the legacy tokenizer is unsafe")]
     fn fts3_tokenizer_disabled_blocks_the_function() {
         let conn = &mut connection();
 
         // Enable first to detect whether FTS3 is compiled into this SQLite build.
-        conn.set_fts3_tokenizer_enabled(true).unwrap();
+        // SAFETY: this connection only runs the test's own SQL.
+        unsafe { conn.set_fts3_tokenizer_enabled(true) }.unwrap();
         let enabled = sql::<crate::sql_types::Binary>("SELECT fts3_tokenizer('simple')")
             .get_result::<Vec<u8>>(conn);
         if enabled.is_err() {
@@ -655,7 +673,8 @@ mod tests {
         }
 
         // Disabled: the `fts3_tokenizer()` SQL function is no longer callable.
-        conn.set_fts3_tokenizer_enabled(false).unwrap();
+        // SAFETY: disabling the legacy tokenizer cannot expose a pointer call.
+        unsafe { conn.set_fts3_tokenizer_enabled(false) }.unwrap();
         let disabled = sql::<crate::sql_types::Binary>("SELECT fts3_tokenizer('simple')")
             .get_result::<Vec<u8>>(conn);
         assert!(disabled.is_err());

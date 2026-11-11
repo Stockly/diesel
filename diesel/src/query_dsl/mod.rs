@@ -100,6 +100,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -243,6 +248,11 @@ pub trait QueryDsl: Sized {
     /// # include!("../doctest_setup.rs");
     /// # use schema::users;
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -301,6 +311,11 @@ pub trait QueryDsl: Sized {
     /// #     }
     /// # }
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -448,6 +463,11 @@ pub trait QueryDsl: Sized {
     /// allow_tables_to_appear_in_same_query!(users, posts);
     /// # */
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use self::users::dsl::{users, name};
     /// #     use self::posts::dsl::{posts, user_id, title};
@@ -474,6 +494,11 @@ pub trait QueryDsl: Sized {
     /// # /*
     /// allow_tables_to_appear_in_same_query!(users, posts);
     /// # */
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use self::users::dsl::{users, name};
     /// #     use self::posts::dsl::{posts, user_id, title};
@@ -507,6 +532,11 @@ pub trait QueryDsl: Sized {
     /// # /*
     /// allow_tables_to_appear_in_same_query!(users, posts);
     /// # */
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use self::users::dsl::{users, name};
     /// #     use self::posts::dsl::{posts, user_id, title};
@@ -625,6 +655,11 @@ pub trait QueryDsl: Sized {
     /// #     }
     /// # }
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -716,6 +751,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -757,6 +797,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use schema::users::dsl::*;
     /// #     use diesel::result::Error::NotFound;
@@ -804,6 +849,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -888,6 +938,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -937,6 +992,11 @@ pub trait QueryDsl: Sized {
     /// # include!("../doctest_setup.rs");
     /// # use schema::users;
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -985,6 +1045,11 @@ pub trait QueryDsl: Sized {
     /// # include!("../doctest_setup.rs");
     /// # use schema::users;
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test().unwrap();
     /// # }
@@ -1054,6 +1119,11 @@ pub trait QueryDsl: Sized {
     /// # Examples
     /// ```rust
     /// # include!("../doctest_setup.rs");
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1089,6 +1159,11 @@ pub trait QueryDsl: Sized {
     /// # Examples
     /// ```rust
     /// # include!("../doctest_setup.rs");
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1360,6 +1435,11 @@ pub trait QueryDsl: Sized {
     /// # include!("../doctest_setup.rs");
     /// # use schema::users;
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use std::collections::HashMap;
     /// #     let connection = &mut establish_connection();
@@ -1430,6 +1510,11 @@ pub trait QueryDsl: Sized {
     /// # include!("../doctest_setup.rs");
     /// # use schema::users;
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     use std::collections::HashMap;
     /// #     let connection = &mut establish_connection();
@@ -1502,6 +1587,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1540,6 +1630,11 @@ pub trait QueryDsl: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #    run_test();
     /// # }
@@ -1659,6 +1754,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1678,6 +1778,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1704,6 +1809,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     ///     name: String,
     /// }
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1775,6 +1885,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1799,6 +1914,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     /// ```rust
     /// # include!("../doctest_setup.rs");
     /// #
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1830,6 +1950,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     ///     name: String,
     /// }
     ///
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }
@@ -1953,6 +2078,11 @@ pub trait RunQueryDsl<Conn>: Sized {
     ///
     /// ```rust
     /// # include!("../doctest_setup.rs");
+    /// # // Reading the query result requires reading memory allocated by the
+    /// # // native sqlite library, which miri cannot track provenance for.
+    /// # #[cfg(miri)]
+    /// # fn main() {}
+    /// # #[cfg(not(miri))]
     /// # fn main() {
     /// #     run_test();
     /// # }

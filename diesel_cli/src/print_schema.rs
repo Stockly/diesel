@@ -313,7 +313,12 @@ pub struct InnerPrintSchemaArgs {
         value_parser = clap::value_parser!(bool),
     )]
     pub sqlite_integer_primary_key_is_bigint: Vec<bool>,
-    /// A list of derives to implement for every automatically generated Rust enum in the schema, separated by commas.
+    /// A list of derives to implement for every automatically generated Rust enum in the schema,
+    /// separated by commas.
+    ///
+    /// Defaults to Clone, Copy, PartialEq and Eq if not specified.
+    ///
+    /// Debug and diesel::types::Enum are always included.
     #[arg(
         id = PrintSchemaArgs::CUSTOM_RUST_ENUM_TYPE_DERIVES,
         long = "custom-enum-derives",
@@ -521,6 +526,7 @@ fn mysql_diesel_types() -> HashSet<&'static str> {
 fn mariadb_diesel_types() -> HashSet<&'static str> {
     let mut types = HashSet::new();
     mysql_like_diesel_types(&mut types);
+    types.insert("Uuid");
     types
 }
 
@@ -621,8 +627,8 @@ pub(crate) fn load_custom_types(
                                 // are dedicated to the column
                                 ColumnType {
                                     rust_name: mysql_enum_name(
-                                        &cd.table_name().rust_name,
-                                        &c.rust_name,
+                                        &cd.table_name().sql_name,
+                                        &c.sql_name,
                                         ty,
                                     ),
                                     max_length: None,
@@ -635,8 +641,8 @@ pub(crate) fn load_custom_types(
                                 // are dedicated to the column
                                 ColumnType {
                                     rust_name: mysql_enum_name(
-                                        &cd.table_name().rust_name,
-                                        &c.rust_name,
+                                        &cd.table_name().sql_name,
+                                        &c.sql_name,
                                         ty,
                                     ),
                                     max_length: None,
@@ -689,10 +695,32 @@ pub(crate) fn load_custom_types(
     })
 }
 
+/// The name of the custom type of a MySQL/MariaDB enum or set column
+///
+/// It is built from the SQL names of the table and column, as `migration generate --diff-schema`
+/// derives it from them too.
 #[cfg(any(feature = "mysql", feature = "mariadb"))]
-pub(crate) fn mysql_enum_name(table_name: &str, column_name: &str, ty: &ColumnType) -> String {
+pub(crate) fn mysql_enum_name(
+    table_sql_name: &str,
+    column_sql_name: &str,
+    ty: &ColumnType,
+) -> String {
+    use crate::infer_schema_internals::{
+        IdentifierKind, make_valid_identifier, replace_unmappable_chars,
+    };
     use heck::ToUpperCamelCase;
-    format!("{} {} {}", table_name, column_name, ty.rust_name).to_upper_camel_case()
+    make_valid_identifier(
+        format!(
+            "{table_name} {column_name} {rust_name}",
+            table_name = replace_unmappable_chars(table_sql_name),
+            column_name = replace_unmappable_chars(column_sql_name),
+            rust_name = ty.rust_name
+        )
+        .to_upper_camel_case()
+        .into(),
+        IdentifierKind::Type,
+    )
+    .into_owned()
 }
 
 fn safe_tables_for_config(
@@ -1329,7 +1357,11 @@ impl Display for ModuleDefinition<'_> {
             writeln!(
                 out,
                 "pub mod {} {{",
-                crate::infer_schema_internals::rust_name_for_sql_name(self.0, None)
+                crate::infer_schema_internals::rust_name_for_sql_name(
+                    self.0,
+                    crate::infer_schema_internals::IdentifierKind::Schema,
+                    None,
+                )
             )?;
             if let Some(ref custom_types_for_tables) = self.1.custom_types_for_tables {
                 write!(
@@ -1635,7 +1667,7 @@ impl<'a> Display for QueryRelationDefinition<'a> {
                 writeln!(
                     out,
                     r#"#[sql_name = {}]"#,
-                    escape_rust_string(&full_sql_name)
+                    escape_rust_string(&self.table.table_name().sql_name)
                 )?;
             }
 

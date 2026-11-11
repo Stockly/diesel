@@ -11,10 +11,6 @@ fn cfg_attributes(attrs: &[syn::Attribute]) -> Vec<&syn::Attribute> {
         .collect()
 }
 
-fn has_cfg_attributes(column: &ColumnDef) -> bool {
-    column.meta.iter().any(|attr| attr.path().is_ident("cfg"))
-}
-
 struct CfgGroup<'a> {
     cfg_attrs: Vec<&'a syn::Attribute>,
     columns: Vec<&'a ColumnDef>,
@@ -78,22 +74,12 @@ struct AggregateTokens {
     all_columns_type_variants: TokenStream,
 }
 
-fn all_columns_tuple_expr<'a>(
-    non_gated_columns: &[&'a ColumnDef],
-    cfg_groups: &[CfgGroup<'a>],
-) -> TokenStream {
-    let mut fields: Vec<TokenStream> = Vec::new();
-    for col in non_gated_columns {
+fn all_columns_tuple_expr<'a>(columns: &'a [&'a ColumnDef]) -> TokenStream {
+    let fields = columns.iter().map(|col| {
+        let attrs = cfg_attributes(&col.meta);
         let name = &col.column_name;
-        fields.push(quote::quote! { #name, });
-    }
-    for group in cfg_groups {
-        let attrs = &group.cfg_attrs;
-        for col in &group.columns {
-            let name = &col.column_name;
-            fields.push(quote::quote! { #(#attrs)* #name, });
-        }
-    }
+        quote::quote! { #(#attrs)* #name, }
+    });
     quote::quote! { (#(#fields)*) }
 }
 
@@ -104,11 +90,11 @@ fn all_columns_tuple_expr<'a>(
 /// the `SelectClauseNotSet` marker for tables and views alike. The column/cfg
 /// inputs are kept (but unused) so this stays a minimal, easy-to-rebase diff.
 fn generate_aggregate_variants<'a>(
-    non_gated_columns: &[&'a ColumnDef],
-    cfg_groups: &[CfgGroup<'a>],
+    columns: &'a [&'a ColumnDef],
+    cfg_groups: &'a [CfgGroup<'a>],
     kind_name: &str,
 ) -> AggregateTokens {
-    let _ = (non_gated_columns, cfg_groups);
+    let _ = (columns, cfg_groups);
 
     let all_columns_type_variants = quote::quote! {
         #[allow(dead_code)]
@@ -206,6 +192,15 @@ fn generate_kind_specific_impls(
     }
 }
 
+/// String key grouping columns by identical `#[cfg(...)]` attribute set.
+fn cfg_group_key(cfg_attrs: &[&syn::Attribute]) -> String {
+    cfg_attrs
+        .iter()
+        .map(|a| quote::quote!(#a).to_string())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 fn collect_cfg_groups<'a>(
     columns: impl IntoIterator<Item = &'a ColumnDef> + Clone,
 ) -> Vec<CfgGroup<'a>> {
@@ -221,11 +216,7 @@ fn collect_cfg_groups<'a>(
             continue;
         }
 
-        let key = cfg_attrs
-            .iter()
-            .map(|a| quote::quote!(#a).to_string())
-            .collect::<Vec<_>>()
-            .join(" ");
+        let key = cfg_group_key(&cfg_attrs);
 
         groups_map
             .entry(key)
@@ -248,11 +239,7 @@ fn collect_cfg_groups<'a>(
             continue;
         }
 
-        let key = cfg_attrs
-            .iter()
-            .map(|a| quote::quote!(#a).to_string())
-            .collect::<Vec<_>>()
-            .join(" ");
+        let key = cfg_group_key(&cfg_attrs);
 
         if !seen_keys.contains(&key) {
             seen_keys.insert(key.clone());
@@ -318,12 +305,7 @@ fn expand(input: TableDecl, kind: QuerySourceMacroKind) -> TokenStream {
         input.view.use_statements.clone()
     };
 
-    let non_gated_columns: Vec<_> = input
-        .view
-        .column_defs
-        .iter()
-        .filter(|c| !has_cfg_attributes(c))
-        .collect();
+    let ordered_columns: Vec<_> = input.view.column_defs.iter().collect();
     let cfg_groups = collect_cfg_groups(&input.view.column_defs);
 
     let column_names = input
@@ -460,7 +442,7 @@ fn expand(input: TableDecl, kind: QuerySourceMacroKind) -> TokenStream {
     let AggregateTokens {
         all_columns_const,
         all_columns_type_variants,
-    } = generate_aggregate_variants(&non_gated_columns, &cfg_groups, kind_name);
+    } = generate_aggregate_variants(&ordered_columns, &cfg_groups, kind_name);
 
     let kind_specific_impls = generate_kind_specific_impls(&primary_key, kind);
 

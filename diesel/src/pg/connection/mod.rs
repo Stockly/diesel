@@ -35,6 +35,13 @@ pub(super) use self::result::PgResult;
 /// should be a PostgreSQL connection string, as documented at
 /// <https://www.postgresql.org/docs/9.4/static/libpq-connect.html#LIBPQ-CONNSTRING>
 ///
+/// Every error the server reports carries its SQLSTATE in
+/// [`DatabaseErrorInformation::sqlstate`], including custom codes raised with
+/// [`RAISE`](https://www.postgresql.org/docs/current/plpgsql-errors-and-messages.html).
+/// Errors that happen before the server answers, such as a failure to send a
+/// query, carry none. The codes PostgreSQL defines are constants in
+/// [`sql_state`](crate::pg::sql_state).
+///
 /// # Supported loading model implementations
 ///
 /// * [`DefaultLoadingMode`]
@@ -160,6 +167,13 @@ impl SimpleConnection for PgConnection {
                     raw_result,
                     &self.connection_and_transaction_manager.raw_connection,
                 )
+                .and_then(|r| {
+                    self::stmt::handle_copy_in_normal_stmt(
+                        &mut self.connection_and_transaction_manager.raw_connection,
+                        true,
+                        r,
+                    )
+                })
             }),
             &mut self.connection_and_transaction_manager,
             &|callback| callback(&StrQueryHelper::new(query)),
@@ -219,7 +233,7 @@ impl Connection for PgConnection {
                 true,
                 &mut |query, params, conn, _source| {
                     let res = query
-                        .execute(&mut conn.raw_connection, &params, false)
+                        .execute(&mut conn.raw_connection, &params, false, true)
                         .and_then(|r| r.rows_affected());
                     // according to https://www.postgresql.org/docs/current/libpq-async.html
                     // `PQgetResult` needs to be called till a null pointer is returned
@@ -287,7 +301,7 @@ fn inner_load(
     source: &dyn QueryFragmentHelper<crate::result::Error>,
     row_by_row: bool,
 ) -> Result<PgResult, Error> {
-    let result = stmt.execute(&mut conn.raw_connection, &params, row_by_row);
+    let result = stmt.execute(&mut conn.raw_connection, &params, row_by_row, true);
     update_transaction_manager_status(
         result,
         conn,
@@ -448,6 +462,38 @@ impl PgConnection {
         TransactionBuilder::new(self)
     }
 
+    /// Returns the version of the server this connection is connected to, with a patch of zero since PostgreSQL 10 numbers releases `major.minor`.
+    ///
+    /// # Errors
+    ///
+    /// Fails with [`DatabaseErrorKind::ClosedConnection`] once the connection is lost.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # include!("../../doctest_setup.rs");
+    /// use diesel::connection::DatabaseVersion;
+    /// #
+    /// # fn main() {
+    /// #     run_test().unwrap();
+    /// # }
+    /// #
+    /// # fn run_test() -> QueryResult<()> {
+    /// #     let conn = &mut establish_connection();
+    /// let supports_returning_old = conn.version()? >= DatabaseVersion::new(18, 0, 0);
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn version(&self) -> QueryResult<DatabaseVersion> {
+        let raw_connection = &self.connection_and_transaction_manager.raw_connection;
+        decode_server_version(raw_connection.server_version()).ok_or_else(|| {
+            Error::DatabaseError(
+                DatabaseErrorKind::ClosedConnection,
+                Box::new(raw_connection.last_error_message()),
+            )
+        })
+    }
+
     pub(crate) fn copy_from<S, T>(&mut self, target: S) -> Result<usize, S::Error>
     where
         S: CopyFromExpression<T>,
@@ -464,7 +510,7 @@ impl PgConnection {
                 where
                     S: CopyFromExpression<T>,
                 {
-                    let _res = stmt.execute(&mut conn.raw_connection, &binds, false)?;
+                    let _res = stmt.execute(&mut conn.raw_connection, &binds, false, false)?;
                     let mut copy_in = CopyFromSink::new(&mut conn.raw_connection);
                     let r = source.write_copy_from(&mut copy_in);
                     copy_in.finish(r.as_ref().err().map(|e| e.to_string()))?;
@@ -515,7 +561,7 @@ impl PgConnection {
             Box::new(command),
             false,
             &mut |stmt, binds, conn, source| {
-                let res = stmt.execute(&mut conn.raw_connection, &binds, false);
+                let res = stmt.execute(&mut conn.raw_connection, &binds, false, false);
                 source.instrumentation(&mut |query| {
                     conn.instrumentation
                         .on_connection_event(InstrumentationEvent::FinishQuery {
@@ -663,6 +709,18 @@ impl PgConnection {
     }
 }
 
+/// Decodes `PQserverVersion`, which packs two digits per part before PostgreSQL 10 and is zero for a bad connection.
+fn decode_server_version(version: libc::c_int) -> Option<DatabaseVersion> {
+    let version = u32::try_from(version)
+        .ok()
+        .filter(|&version| version != 0)?;
+    Some(if version >= 100_000 {
+        DatabaseVersion::new(version / 10_000, version % 10_000, 0)
+    } else {
+        DatabaseVersion::new(version / 10_000, version / 100 % 100, version % 100)
+    })
+}
+
 extern "C" fn noop_notice_processor(_: *mut libc::c_void, _message: *const libc::c_char) {}
 
 mod private {
@@ -791,6 +849,10 @@ mod private {
 
         fn is_safe_to_cache_prepared(&self, backend: &Pg) -> QueryResult<bool> {
             self.0.borrow().is_safe_to_cache_prepared(backend)
+        }
+
+        fn parameter_count(&self, backend: &Pg) -> QueryResult<usize> {
+            self.0.borrow().parameter_count(backend)
         }
     }
 
@@ -1533,5 +1595,70 @@ mod tests {
                 .transaction_status()
         );
         assert!(result.is_ok());
+    }
+
+    #[crate::declare_sql_function]
+    extern "SQL" {
+        fn current_setting(setting_name: crate::sql_types::Text) -> crate::sql_types::Text;
+        fn pg_backend_pid() -> crate::sql_types::Integer;
+        fn pg_terminate_backend(
+            pid: crate::sql_types::Integer,
+            timeout: crate::sql_types::BigInt,
+        ) -> crate::sql_types::Bool;
+    }
+
+    #[diesel_test_helper::test]
+    fn decode_server_version_reads_both_numbering_schemes() {
+        assert_eq!(
+            decode_server_version(180004),
+            Some(DatabaseVersion::new(18, 4, 0))
+        );
+        assert_eq!(
+            decode_server_version(100001),
+            Some(DatabaseVersion::new(10, 1, 0))
+        );
+        assert_eq!(
+            decode_server_version(90620),
+            Some(DatabaseVersion::new(9, 6, 20))
+        );
+        assert_eq!(decode_server_version(0), None);
+    }
+
+    #[diesel_test_helper::test]
+    fn version_matches_the_server_reported_version() {
+        let conn = &mut connection();
+        let version = conn.version().unwrap();
+        let reported = crate::select(current_setting("server_version"))
+            .get_result::<String>(conn)
+            .unwrap();
+        let numeric = reported
+            .split(|c: char| !c.is_ascii_digit() && c != '.')
+            .next()
+            .unwrap();
+        assert_eq!(numeric, format!("{}.{}", version.major(), version.minor()));
+        assert_eq!(version.patch(), 0);
+    }
+
+    #[diesel_test_helper::test]
+    fn version_fails_once_the_connection_is_closed() {
+        let conn = &mut connection();
+        let pid = crate::select(pg_backend_pid())
+            .get_result::<i32>(conn)
+            .unwrap();
+        assert!(
+            crate::select(pg_terminate_backend(pid, 5000_i64))
+                .get_result::<bool>(&mut connection())
+                .unwrap()
+        );
+        assert!(
+            crate::select(1.into_sql::<crate::sql_types::Integer>())
+                .get_result::<i32>(conn)
+                .is_err()
+        );
+
+        assert!(matches!(
+            conn.version(),
+            Err(DatabaseError(DatabaseErrorKind::ClosedConnection, _))
+        ));
     }
 }
